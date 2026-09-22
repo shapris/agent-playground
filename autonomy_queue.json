@@ -2,29 +2,18 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 1,
+  "status": "active",
+  "index": 0,
   "max_cycles": 1,
   "tasks": [
     {
-      "id": "codex-correlated-proof-v3-1",
+      "id": "codex-bell-proof-35777022664",
       "kind": "probe-syntax-recheck",
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "codex-correlated-proof-v3-1",
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "codex-correlated-proof-v3-1",
-      "kind": "probe-syntax-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T19:42:38.887266+00:00",
-      "details": {
-        "syntax": "PASS"
-      }
-    }
-  ],
+  "last_completed": null,
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -32,9 +21,11 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "gate": "WAIT_FOR_CODEX_REVIEW_RELAY",
-  "gate_pr": 26,
-  "gate_head_sha": "8920691651097a348e5a45d3171b5ae308b40f32",
-  "gate_release_token": "codex:26:8920691651097a348e5a45d3171b5ae308b40f32",
-  "note": "Clean correlated proof v3: only Codex review of PR #26 at exact v3 head SHA may release."
+  "gate": "WAIT_FOR_CODEX_BELL",
+  "gate_branch": "pupis-codex-gate-bell-35777022664",
+  "gate_head_sha": "574421b75f697f3034d5a2bd486f2ac71c51a9ab",
+  "gate_nonce": "bell-35777022664-1",
+  "gate_release_token": "bell:pupis-codex-gate-bell-35777022664:574421b75f697f3034d5a2bd486f2ac71c51a9ab:bell-35777022664-1",
+  "bell_creator_run_id": 35777022664,
+  "note": "One-time proof: GitHub-created PR -> automatic Codex review -> exact commit+nonce relay -> bounded worker."
 }
