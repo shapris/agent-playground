@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,8 +37,24 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": null,
-  "evidence": [],
+  "last_completed": "catalog-v2-1",
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "catalog-v2-1",
+      "kind": "critical-hash-snapshot",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:31:37.043257+00:00",
+      "details": {
+        "sha256": {
+          "chat_mode_ci_probe.py": "8629911fefa62f12adc5d9cf36e729acb1316491d597e17aa203eaa2a604209a",
+          "exact_bytes_probe.py": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+          "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
+          "autonomy_queue.json": "33cb2c229076e0b6d30a81b983495ac975871e700e0c4fc4eee1df98164ce493"
+        }
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
