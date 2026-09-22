@@ -1,0 +1,96 @@
+name: PUPIS Local Model Capability Probe
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-local-model-capability-probe.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-local-model-capability-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "LOCAL_MODEL_CAPABILITY_WORKFLOW_VALID"
+
+  probe:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Inspect runner capacity without installing anything
+        shell: python
+        run: |
+          import importlib.util
+          import json
+          import os
+          import shutil
+          import urllib.request
+
+          mem_total_kb = 0
+          with open("/proc/meminfo", "r", encoding="utf-8") as handle:
+              for line in handle:
+                  if line.startswith("MemTotal:"):
+                      mem_total_kb = int(line.split()[1])
+                      break
+
+          disk = shutil.disk_usage(".")
+          modules = {}
+          for name in ("torch", "transformers", "huggingface_hub"):
+              spec = importlib.util.find_spec(name)
+              modules[name] = bool(spec)
+
+          binaries = {
+              name: shutil.which(name)
+              for name in ("llama-cli", "llama", "ollama")
+          }
+
+          url = (
+              "https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct-GGUF/"
+              "resolve/main/qwen2.5-coder-0.5b-instruct-q4_k_m.gguf"
+          )
+          reachable = False
+          content_length = None
+          try:
+              req = urllib.request.Request(
+                  url,
+                  method="HEAD",
+                  headers={"User-Agent": "pupis-capability-probe/1"},
+              )
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  reachable = 200 <= response.status < 400
+                  content_length = response.headers.get("Content-Length")
+          except Exception as exc:
+              print(f"MODEL_HEAD_ERROR={type(exc).__name__}:{exc}")
+
+          report = {
+              "cpu_count": os.cpu_count(),
+              "mem_total_gib": round(mem_total_kb / 1024 / 1024, 2),
+              "disk_free_gib": round(disk.free / (1024 ** 3), 2),
+              "python_modules": modules,
+              "binaries": binaries,
+              "model_source_reachable": reachable,
+              "model_content_length": content_length,
+              "candidate": "Qwen2.5-Coder-0.5B-Instruct-GGUF Q4_K_M",
+          }
+          print("PUPIS_LOCAL_MODEL_CAPABILITY=" + json.dumps(report, sort_keys=True))
+
+          enough_capacity = (
+              report["mem_total_gib"] >= 4
+              and report["disk_free_gib"] >= 2
+              and reachable
+          )
+          print(
+              "LOCAL_MODEL_HOSTING_CANDIDATE="
+              + ("PASS" if enough_capacity else "BLOCKED")
+          )
