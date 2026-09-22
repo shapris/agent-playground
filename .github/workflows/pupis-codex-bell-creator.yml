@@ -1,0 +1,232 @@
+name: PUPIS Codex Bell Creator
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-codex-bell-creator.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-codex-bell-creator.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pupis-codex-bell-creator
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate bell creator boundary
+        run: |
+          echo "CODEX_BELL_CREATOR_VALID"
+          test "${{ github.event_name }}" = "pull_request"
+
+  ring:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout trusted main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: mainrepo
+          fetch-depth: 1
+
+      - name: Checkout isolated scratch state
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          path: scratch
+          fetch-depth: 1
+
+      - name: Arm one-time gated queue and create bell PR
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          import json
+          import os
+          import subprocess
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          repo = os.environ["REPOSITORY"]
+          run_id = os.environ["RUN_ID"]
+          attempt = os.environ["RUN_ATTEMPT"]
+          token = os.environ["GH_TOKEN"]
+          scratch_branch = "chat-mode-ci-probe-20260922"
+
+          nonce = f"bell-{run_id}-{attempt}"
+          bell_branch = f"pupis-codex-gate-bell-{run_id}"
+
+          def git(path, *args, capture=False):
+              cmd = ["git", "-C", str(path), *args]
+              if capture:
+                  return subprocess.check_output(cmd, text=True).strip()
+              subprocess.run(cmd, check=True)
+              return None
+
+          mainrepo = Path("mainrepo")
+          scratch = Path("scratch")
+
+          queue_path = scratch / "autonomy_queue.json"
+          queue = json.loads(queue_path.read_text(encoding="utf-8"))
+          if queue.get("status") != "complete":
+              raise RuntimeError(
+                  f"Bell refused: queue is not complete: {queue.get('status')}"
+              )
+
+          git(mainrepo, "config", "user.name", "pupis-codex-bell[bot]")
+          git(
+              mainrepo,
+              "config",
+              "user.email",
+              "41898282+github-actions[bot]@users.noreply.github.com",
+          )
+          git(mainrepo, "checkout", "-b", bell_branch)
+
+          bell_dir = mainrepo / "autonomy_bell"
+          bell_dir.mkdir(parents=True, exist_ok=True)
+          bell_file = bell_dir / f"{run_id}.py"
+          bell_file.write_text(
+              '"""Isolated Codex bell review probe. Do not merge."""\n\n'
+              'def safe_ratio(total: int) -> int:\n'
+              '    """Return 0 when total is zero; otherwise return 10 // total."""\n'
+              '    return 10 // total\n',
+              encoding="utf-8",
+          )
+          git(mainrepo, "add", str(bell_file.relative_to(mainrepo)))
+          git(mainrepo, "commit", "-m", f"test: isolated Codex bell {run_id}")
+          head_sha = git(mainrepo, "rev-parse", "HEAD", capture=True)
+          git(mainrepo, "push", "origin", f"HEAD:{bell_branch}")
+
+          release_token = (
+              f"bell:{bell_branch}:{head_sha}:{nonce}"
+          )
+          armed = {
+              "schema": 1,
+              "scope": "scratch-only",
+              "branch": scratch_branch,
+              "status": "active",
+              "index": 0,
+              "max_cycles": 1,
+              "tasks": [
+                  {
+                      "id": f"codex-bell-proof-{run_id}",
+                      "kind": "probe-syntax-recheck",
+                      "expected_probe": "CI_PASS",
+                  }
+              ],
+              "last_completed": None,
+              "evidence": [],
+              "safety": [
+                  "scratch branch only",
+                  "never merge PR #1",
+                  "never touch canonical PUPIS_EVO",
+                  "never touch JARVIS_FRESH",
+                  "stop after max_cycles",
+              ],
+              "gate": "WAIT_FOR_CODEX_BELL",
+              "gate_branch": bell_branch,
+              "gate_head_sha": head_sha,
+              "gate_nonce": nonce,
+              "gate_release_token": release_token,
+              "bell_creator_run_id": int(run_id),
+              "note": (
+                  "One-time proof: GitHub-created PR -> automatic Codex review -> "
+                  "exact commit+nonce relay -> bounded worker."
+              ),
+          }
+          queue_path.write_text(
+              json.dumps(armed, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8",
+          )
+
+          changed = git(scratch, "status", "--porcelain", capture=True)
+          changed_paths = [
+              line[3:] for line in changed.splitlines() if line.strip()
+          ]
+          if changed_paths != ["autonomy_queue.json"]:
+              raise RuntimeError(
+                  f"Bell refused unexpected scratch changes: {changed_paths}"
+              )
+
+          git(scratch, "config", "user.name", "pupis-codex-bell[bot]")
+          git(
+              scratch,
+              "config",
+              "user.email",
+              "41898282+github-actions[bot]@users.noreply.github.com",
+          )
+          git(scratch, "add", "autonomy_queue.json")
+          git(scratch, "commit", "-m", "bot: arm one-time Codex bell gate")
+          git(scratch, "push", "origin", f"HEAD:{scratch_branch}")
+
+          body = (
+              "PUPIS_CODEX_RELAY_GATE=ALLOW\n"
+              f"PUPIS_CODEX_BELL_NONCE={nonce}\n"
+              "PUPIS_CODEX_BELL=1\n\n"
+              "Isolated scratch-only automatic review bell. Do not merge. "
+              "This PR contains one intentional functional defect so Automatic "
+              "Codex Review should produce a submitted review event. The relay "
+              "must accept only this exact branch, reviewed commit SHA, and nonce."
+          )
+
+          payload = json.dumps(
+              {
+                  "title": f"PUPIS Codex Bell {run_id}",
+                  "head": bell_branch,
+                  "base": "main",
+                  "body": body,
+                  "draft": False,
+              }
+          ).encode("utf-8")
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/pulls",
+              data=payload,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  pr = json.loads(response.read().decode("utf-8"))
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(
+                  f"Bell PR create failed HTTP {exc.code}: {detail}"
+              ) from exc
+
+          if pr.get("head", {}).get("sha") != head_sha:
+              raise RuntimeError(
+                  f"Bell PR head mismatch: {pr.get('head', {}).get('sha')} != {head_sha}"
+              )
+
+          print(
+              f"CODEX_BELL_CREATED pr={pr['number']} branch={bell_branch} "
+              f"sha={head_sha} nonce={nonce}"
+          )
