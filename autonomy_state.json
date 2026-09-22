@@ -1,1 +1,87 @@
-{"schema":1,"purpose":"PUPIS EVO architect-plus-worker scratch autonomy state","scope":"scratch-only","repository":"shapris/agent-playground","branch":"chat-mode-ci-probe-20260922","pull_request":1,"canonical_projects_locked":["PUPIS_EVO","JARVIS_FRESH"],"status":"PASS_WITH_UI_WAKE_BLOCKER","phase":"background-director-plus-event-driven-worker","last_verified_local":"2026-09-22T22:24:54+03:00","invariants":["never merge PR #1","never touch canonical PUPIS_EVO without explicit owner authorization","never touch JARVIS_FRESH","fetch current blob SHA before every update","on 409 CONFLICT refetch and reconcile before retry","require CI/log evidence before claiming PASS"],"evidence":{"codex_review_event_gate":{"result":"PASS","pr":24,"review_id":5282676301,"review_actor":"chatgpt-codex-connector[bot]","review_submitted_at":"2026-09-22T19:24:30Z","reviewed_commit":"13da5e49ea301843fc1f14098a64d8795ebb5810","relay_run_id":35773587734,"relay_event":"pull_request_review","relay_result":"success","relay_gate_active":true,"relay_dispatch_marker":"CODEX_REVIEW_RELAY_DISPATCH_PASS","driver_run_id":35773598850,"driver_event":"workflow_dispatch","driver_result":"success","driver_gate_marker":"DRIVER_EXTERNAL_GATE allowed=True reason=codex_review_relay event=workflow_dispatch","driver_advance_marker":"DRIVER_ADVANCED task=codex-gated-proof-1 index=1 status=complete","pre_gate_queue":{"status":"active","index":0,"max_cycles":1,"gate":"WAIT_FOR_CODEX_REVIEW_RELAY"},"final_queue":{"status":"complete","index":1,"max_cycles":1,"last_completed":"codex-gated-proof-1","task_result":"PASS","syntax":"PASS"},"ordinary_workflow_run_before_codex_did_not_advance":true,"safety":"scratch-only; PR #1 not merged; canonical PUPIS_EVO and JARVIS_FRESH untouched"}},"next_actions":["use the proven Codex review event gate as an asynchronous event-driven wake source for bounded trusted work","retain deterministic gate checks and scratch-only boundaries","never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"]}
+{
+  "schema": 1,
+  "purpose": "PUPIS EVO architect-plus-worker scratch autonomy state",
+  "scope": "scratch-only",
+  "repository": "shapris/agent-playground",
+  "branch": "chat-mode-ci-probe-20260922",
+  "pull_request": 1,
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "status": "PASS_WITH_UI_WAKE_BLOCKER",
+  "phase": "trusted-baseline-plus-correlated-review-gate",
+  "last_verified_local": "2026-09-22T22:33:00+03:00",
+  "invariants": [
+    "never merge PR #1",
+    "never touch canonical PUPIS_EVO without explicit owner authorization",
+    "never touch JARVIS_FRESH",
+    "fetch current blob SHA before every update",
+    "on 409 CONFLICT refetch and reconcile before retry",
+    "require CI/log evidence before claiming PASS"
+  ],
+  "evidence": {
+    "codex_review_event_gate": {
+      "result": "PASS_CONTAMINATED_STALE_REVIEW",
+      "pr": 24,
+      "review_id": 5282676301,
+      "review_actor": "chatgpt-codex-connector[bot]",
+      "review_submitted_at": "2026-09-22T19:24:30Z",
+      "reviewed_commit": "13da5e49ea301843fc1f14098a64d8795ebb5810",
+      "relay_run_id": 35773587734,
+      "relay_event": "pull_request_review",
+      "relay_result": "success",
+      "relay_gate_active": true,
+      "relay_dispatch_marker": "CODEX_REVIEW_RELAY_DISPATCH_PASS",
+      "driver_run_id": 35773598850,
+      "driver_event": "workflow_dispatch",
+      "driver_result": "success",
+      "driver_gate_marker": "DRIVER_EXTERNAL_GATE allowed=True reason=codex_review_relay event=workflow_dispatch",
+      "driver_advance_marker": "DRIVER_ADVANCED task=codex-gated-proof-1 index=1 status=complete",
+      "pre_gate_queue": {
+        "status": "active",
+        "index": 0,
+        "max_cycles": 1,
+        "gate": "WAIT_FOR_CODEX_REVIEW_RELAY"
+      },
+      "final_queue": {
+        "status": "complete",
+        "index": 1,
+        "max_cycles": 1,
+        "last_completed": "codex-gated-proof-1",
+        "task_result": "PASS",
+        "syntax": "PASS"
+      },
+      "ordinary_workflow_run_before_codex_did_not_advance": true,
+      "safety": "scratch-only; PR #1 not merged; canonical PUPIS_EVO and JARVIS_FRESH untouched",
+      "clean_proof": false,
+      "note": "PR #24 reached completion, but a delayed review from older PR #22 also dispatched the pre-correlation relay. Hard cap prevented duplicate task execution. Do not treat as clean gate proof."
+    },
+    "exact_bytes": {
+      "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+      "source": "trusted-main baseline + independently verified scratch bytes",
+      "mutable_state_is_not_safety_root": true
+    },
+    "trusted_baseline": {
+      "result": "PASS",
+      "merged_main": "pending-readback-after-merge",
+      "path": ".github/pupis-autonomy-baseline.json",
+      "driver_regression_tests": "15/15 PASS",
+      "append_only_task_evidence": true,
+      "reason": "critical invariants no longer depend on mutable autonomy_state evidence"
+    },
+    "ssot_recovery": {
+      "result": "PASS",
+      "detected_problem": "background cycle replaced prior evidence map, removing exact_bytes",
+      "correction": "autonomy_state retained as projection; critical invariants moved to trusted main baseline; worker task evidence journal made append-only",
+      "recovered_at_utc": "2026-09-22T19:33:00Z"
+    }
+  },
+  "next_actions": [
+    "prove exact PR/SHA/release-token correlated Codex gate on PR #26",
+    "verify ordinary workflow_run cannot release gated queue",
+    "verify Codex review relay dispatch with exact token completes one bounded task",
+    "treat autonomy_state as mutable projection and trusted baseline/evidence journal as durable safety evidence",
+    "never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"
+  ]
+}
