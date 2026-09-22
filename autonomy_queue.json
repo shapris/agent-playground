@@ -2,29 +2,28 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 1,
-  "max_cycles": 1,
+  "status": "ready",
+  "index": 0,
+  "max_cycles": 4,
   "tasks": [
     {
-      "id": "codex-bell-proof-35777022664",
-      "kind": "probe-syntax-recheck",
-      "expected_probe": "CI_PASS"
-    }
-  ],
-  "last_completed": "codex-bell-proof-35777022664",
-  "evidence": [
+      "id": "v5-critical-hash-snapshot",
+      "kind": "critical-hash-snapshot"
+    },
     {
-      "index": 0,
-      "task_id": "codex-bell-proof-35777022664",
-      "kind": "probe-syntax-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T20:02:22.623528+00:00",
-      "details": {
-        "syntax": "PASS"
-      }
+      "id": "v5-symlink-guard",
+      "kind": "symlink-guard"
+    },
+    {
+      "id": "v5-state-schema-recheck",
+      "kind": "state-schema-recheck"
+    },
+    {
+      "id": "v5-queue-integrity-recheck",
+      "kind": "queue-integrity-recheck"
     }
   ],
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -32,11 +31,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "gate": "WAIT_FOR_CODEX_BELL",
-  "gate_branch": "pupis-codex-gate-bell-35777022664",
-  "gate_head_sha": "574421b75f697f3034d5a2bd486f2ac71c51a9ab",
-  "gate_nonce": "bell-35777022664-1",
-  "gate_release_token": "bell:pupis-codex-gate-bell-35777022664:574421b75f697f3034d5a2bd486f2ac71c51a9ab:bell-35777022664-1",
-  "bell_creator_run_id": 35777022664,
-  "note": "One-time proof: GitHub-created PR -> automatic Codex review -> exact commit+nonce relay -> bounded worker."
+  "note": "V5 deterministic hardening batch seeded by the canonical background director after real schedule fallback was proven. No AI/model-credit task kinds; existing trusted catalog only."
 }
