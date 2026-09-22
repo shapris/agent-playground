@@ -7,7 +7,7 @@
   "max_cycles": 1,
   "tasks": [
     {
-      "id": "codex-correlated-proof-v2-1",
+      "id": "codex-correlated-proof-v3-1",
       "kind": "probe-syntax-recheck",
       "expected_probe": "CI_PASS"
     }
@@ -23,7 +23,7 @@
   ],
   "gate": "WAIT_FOR_CODEX_REVIEW_RELAY",
   "gate_pr": 26,
-  "gate_head_sha": "6a8831db23a449326f4387b1046031eb4c3f8923",
-  "gate_release_token": "codex:26:6a8831db23a449326f4387b1046031eb4c3f8923",
-  "note": "Clean correlated proof v2: only Codex review of PR #26 at exact rotated head SHA may release."
+  "gate_head_sha": "8920691651097a348e5a45d3171b5ae308b40f32",
+  "gate_release_token": "codex:26:8920691651097a348e5a45d3171b5ae308b40f32",
+  "note": "Clean correlated proof v3: only Codex review of PR #26 at exact v3 head SHA may release."
 }
