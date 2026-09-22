@@ -107,12 +107,12 @@
       "native_status": "PASS"
     },
     "bounded_autonomy_driver": {
-      "status": "RUNNING",
-      "completed_cycles": 5,
+      "status": "COMPLETE",
+      "completed_cycles": 6,
       "max_cycles": 6,
       "hard_max_cycles": 6,
-      "last_task": "v3-5",
-      "last_verified_utc": "2026-09-22T18:58:17.109567+00:00"
+      "last_task": "v3-6",
+      "last_verified_utc": "2026-09-22T18:58:33.838145+00:00"
     },
     "driver_hard_cap": {
       "result": "PASS",
