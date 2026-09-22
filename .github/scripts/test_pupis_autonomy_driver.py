@@ -260,6 +260,7 @@ class DriverSafetyTests(unittest.TestCase):
         state = base_state()
         state["schema"] = 999
         write_json(root / "autonomy_state.json", state)
+        write_json(root / "autonomy_queue.json", queue)
         result = subprocess.run(
             [sys.executable, str(DRIVER), "--worktree", str(root)],
             text=True,
