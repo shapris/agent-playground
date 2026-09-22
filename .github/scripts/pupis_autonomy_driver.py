@@ -19,6 +19,10 @@ ALLOWED_TASK_KINDS = {
     "critical-hash-snapshot",
     "symlink-guard",
     "probe-syntax-recheck",
+    "state-schema-recheck",
+    "critical-size-bounds",
+    "encoding-profile-recheck",
+    "probe-capability-recheck",
 }
 
 
@@ -176,6 +180,63 @@ def main():
         source = probe_path.read_text(encoding="utf-8")
         ast.parse(source, filename=str(probe_path))
         details["syntax"] = "PASS"
+
+    elif kind == "state-schema-recheck":
+        require(state.get("schema") == 1, "state schema must be 1")
+        require(state.get("repository") == "shapris/agent-playground", "state repository mismatch")
+        require(state.get("pull_request") == 1, "state pull_request must be 1")
+        require(isinstance(state.get("evidence"), dict), "state evidence must be an object")
+        require(isinstance(state.get("invariants"), list), "state invariants must be a list")
+        require(isinstance(queue.get("evidence", []), list), "queue evidence must be a list")
+        require(isinstance(queue.get("safety", []), list), "queue safety must be a list")
+        details["schema"] = "PASS"
+
+    elif kind == "critical-size-bounds":
+        critical = [
+            "chat_mode_ci_probe.py",
+            "exact_bytes_probe.py",
+            "race_guard_probe.txt",
+            "autonomy_queue.json",
+            "autonomy_state.json",
+        ]
+        sizes = {}
+        for name in critical:
+            path = root / name
+            require(path.exists() and path.is_file(), f"critical file invalid: {name}")
+            size = path.stat().st_size
+            require(0 < size <= 1024 * 1024, f"critical file size out of bounds: {name}={size}")
+            sizes[name] = size
+        details["bytes"] = sizes
+
+    elif kind == "encoding-profile-recheck":
+        exact = (root / "exact_bytes_probe.py").read_bytes()
+        probe = (root / "chat_mode_ci_probe.py").read_bytes()
+
+        require(exact.startswith(b"\xef\xbb\xbf"), "exact-bytes probe must keep UTF-8 BOM")
+        exact_text = exact[3:].decode("utf-8")
+        require("\r\n" in exact_text, "exact-bytes probe must contain CRLF")
+        require("\n" not in exact_text.replace("\r\n", ""), "exact-bytes probe has bare LF")
+
+        require(not probe.startswith(b"\xef\xbb\xbf"), "chat probe must not contain UTF-8 BOM")
+        probe.decode("utf-8")
+        require(b"\r\n" not in probe, "chat probe must be LF-only")
+        require(b"\n" in probe, "chat probe must contain LF")
+        details["profile"] = "BOM+CRLF exact / UTF8+LF probe"
+
+    elif kind == "probe-capability-recheck":
+        probe_path = root / "chat_mode_ci_probe.py"
+        tree = ast.parse(probe_path.read_text(encoding="utf-8"), filename=str(probe_path))
+        require(bool(tree.body), "chat probe must not be empty")
+        for stmt in tree.body:
+            require(isinstance(stmt, ast.Expr), "chat probe permits only expression statements")
+            call = stmt.value
+            require(isinstance(call, ast.Call), "chat probe permits only calls")
+            require(isinstance(call.func, ast.Name) and call.func.id == "print", "chat probe permits only print")
+            require(not call.keywords, "chat probe print keywords are forbidden")
+            require(len(call.args) == 1, "chat probe print must have exactly one argument")
+            require(isinstance(call.args[0], ast.Constant) and isinstance(call.args[0].value, str),
+                    "chat probe print argument must be a constant string")
+        details["capability"] = "PRINT_CONSTANTS_ONLY"
 
     else:
         raise ValidationError(f"unsupported bounded task kind: {kind}")
