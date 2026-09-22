@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 2,
+  "index": 3,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,7 +27,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "hardening-2",
+  "last_completed": "hardening-3",
   "evidence": [
     {
       "index": 0,
@@ -47,6 +47,16 @@
       "verified_at_utc": "2026-09-22T17:07:15.951522+00:00",
       "details": {
         "race_guard": "VERSION=3_RECOVERED"
+      }
+    },
+    {
+      "index": 2,
+      "task_id": "hardening-3",
+      "kind": "continuity-seal",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T17:07:35.348759+00:00",
+      "details": {
+        "probe_safe": true
       }
     }
   ],
