@@ -8,6 +8,7 @@ on:
       - .github/workflows/pupis-autonomy-driver.yml
       - .github/scripts/pupis_autonomy_driver.py
       - .github/scripts/test_pupis_autonomy_driver.py
+      - .github/pupis-autonomy-baseline.json
   workflow_run:
     workflows:
       - Chat Mode CI Probe
@@ -59,32 +60,57 @@ jobs:
     outputs:
       advance: ${{ steps.gate.outputs.advance }}
     steps:
+      - name: Checkout trusted baseline read-only
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+
       - name: Checkout isolated scratch branch read-only
         uses: actions/checkout@v4
         with:
           ref: chat-mode-ci-probe-20260922
+          path: scratch
           persist-credentials: false
 
       - name: Execute scratch probe with read-only token
-        run: python chat_mode_ci_probe.py
+        run: python scratch/chat_mode_ci_probe.py
 
-      - name: Verify scratch safety evidence
+      - name: Verify scratch safety evidence against trusted baseline
         shell: python
         run: |
           import hashlib
           import json
           from pathlib import Path
 
-          state = json.loads(Path("autonomy_state.json").read_text(encoding="utf-8"))
-          assert state["scope"] == "scratch-only"
-          assert state["branch"] == "chat-mode-ci-probe-20260922"
-          assert set(state["canonical_projects_locked"]) == {"PUPIS_EVO", "JARVIS_FRESH"}
+          baseline = json.loads(
+              Path("trusted/.github/pupis-autonomy-baseline.json").read_text(encoding="utf-8")
+          )
+          state = json.loads(Path("scratch/autonomy_state.json").read_text(encoding="utf-8"))
 
-          expected = state["evidence"]["exact_bytes"]["sha256"]
-          actual = hashlib.sha256(Path("exact_bytes_probe.py").read_bytes()).hexdigest()
-          assert actual == expected, (actual, expected)
-          assert Path("race_guard_probe.txt").read_text(encoding="utf-8") == "VERSION=3_RECOVERED\n"
-          print("DRIVER_PROBE_PASS")
+          assert baseline["schema"] == 1
+          assert baseline["scope"] == "scratch-only"
+          assert baseline["repository"] == "shapris/agent-playground"
+          assert baseline["branch"] == "chat-mode-ci-probe-20260922"
+          assert set(baseline["canonical_projects_locked"]) == {"PUPIS_EVO", "JARVIS_FRESH"}
+
+          assert state["scope"] == baseline["scope"]
+          assert state["branch"] == baseline["branch"]
+          assert set(state["canonical_projects_locked"]) == set(baseline["canonical_projects_locked"])
+
+          actual = hashlib.sha256(Path("scratch/exact_bytes_probe.py").read_bytes()).hexdigest()
+          assert actual == baseline["exact_bytes_sha256"], (actual, baseline["exact_bytes_sha256"])
+          assert (
+              Path("scratch/race_guard_probe.txt").read_text(encoding="utf-8")
+              == baseline["race_guard_text"]
+          )
+
+          probe = Path("scratch/chat_mode_ci_probe.py").read_text(encoding="utf-8")
+          for marker in baseline["probe_required_markers"]:
+              assert marker in probe, marker
+
+          print("DRIVER_TRUSTED_BASELINE_PASS")
 
       - name: Enforce optional external gate
         id: gate
@@ -97,7 +123,7 @@ jobs:
           import os
           from pathlib import Path
 
-          queue = json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8"))
+          queue = json.loads(Path("scratch/autonomy_queue.json").read_text(encoding="utf-8"))
           gate = queue.get("gate")
           event = os.environ["EVENT_NAME"]
 
@@ -147,7 +173,10 @@ jobs:
           fetch-depth: 1
 
       - name: Advance exactly one bounded queue task
-        run: python trusted/.github/scripts/pupis_autonomy_driver.py --worktree scratch
+        run: >-
+          python trusted/.github/scripts/pupis_autonomy_driver.py
+          --worktree scratch
+          --baseline trusted/.github/pupis-autonomy-baseline.json
 
       - name: Enforce write allowlist and push only if changed
         id: push
@@ -156,7 +185,7 @@ jobs:
           set -euo pipefail
           cd scratch
 
-          changed="$(git status --porcelain | awk '{print $2}')"
+          changed="$(git status --porcelain --untracked-files=all | awk '{print $2}')"
           if [ -z "$changed" ]; then
             echo "DRIVER_NO_CHANGES"
             echo "continue=false" >> "$GITHUB_OUTPUT"
@@ -165,7 +194,7 @@ jobs:
 
           while IFS= read -r path; do
             case "$path" in
-              autonomy_queue.json|autonomy_state.json|driver_probe.txt)
+              autonomy_queue.json|autonomy_state.json|driver_probe.txt|autonomy_evidence/*.json)
                 ;;
               *)
                 echo "BLOCKED_UNEXPECTED_PATH=$path"
@@ -176,7 +205,7 @@ jobs:
 
           git config user.name "pupis-autonomy-driver[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add autonomy_queue.json autonomy_state.json driver_probe.txt 2>/dev/null || true
+          git add autonomy_queue.json autonomy_state.json driver_probe.txt autonomy_evidence/*.json 2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "DRIVER_NO_STAGED_CHANGES"
