@@ -10,8 +10,8 @@
     "JARVIS_FRESH"
   ],
   "status": "PASS",
-  "phase": "architect-hourly-worker-burst",
-  "last_verified_local": "2026-09-22T20:04:00+03:00",
+  "phase": "architect-worker-burst-with-hard-cap",
+  "last_verified_local": "2026-09-22T20:16:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -112,12 +112,40 @@
       "max_cycles": 4,
       "last_task": "hardening-4",
       "last_verified_utc": "2026-09-22T17:07:52.588085+00:00"
+    },
+    "driver_hard_cap": {
+      "result": "PASS",
+      "hard_max_cycles": 6,
+      "validation_mode": "explicit_runtime_validation",
+      "assert_dependency": false,
+      "regression_run": 35759057026,
+      "regression_tests": "4/4 PASS including python -O over-limit rejection",
+      "merged_main": "7fdbfde62f7cd8f2d4031e2ac221be93959684c7"
+    },
+    "inactive_cloud_agent_profile": {
+      "result": "PREPARED_NOT_INVOKED",
+      "merged_main": "4c3a980c98b0edad3cbf5b4c21bcd1c60b3240c8",
+      "path": ".github/agents/pupis-autonomy.agent.md",
+      "automatic_model_invocation": false,
+      "tools": [
+        "read",
+        "edit",
+        "search"
+      ],
+      "ai_credit_policy": "DO_NOT_INVOKE_WITHOUT_EXPLICIT_OWNER_AUTHORIZATION"
+    },
+    "schedule_reactivation": {
+      "result": "PENDING_PROOF",
+      "merged_main": "c2d807c0b3522a473fd6494db965e369c1625607",
+      "watchdog_cron": "3,13,23,33,43,53 * * * *",
+      "driver_cron": "7,17,27,37,47,57 * * * *",
+      "reason": "public fork schedules are disabled by default; cron change intended to reactivate"
     }
   },
   "next_actions": [
-    "director should seed a new bounded multi-step queue when current queue is complete and all gates are PASS",
-    "worker should execute queued steps through workflow_dispatch self-chaining and stop at queue limit",
-    "expand trusted driver task catalog only through reviewed main-branch changes",
+    "verify real event=schedule runs after cron reactivation",
+    "let hourly Director seed bounded batches only when queue complete and all gates PASS",
+    "keep cloud agent profile dormant unless owner explicitly authorizes AI-credit use",
     "continue isolated scratch hardening without touching canonical PUPIS_EVO or JARVIS_FRESH"
   ]
 }
