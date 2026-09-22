@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "purpose": "PUPIS EVO architect-plus-worker scratch autonomy state",
+  "scope": "scratch-only",
+  "repository": "shapris/agent-playground",
+  "branch": "chat-mode-ci-probe-20260922",
+  "pull_request": 1,
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "status": "PASS",
+  "phase": "hardening",
+  "last_verified_local": "2026-09-22T19:22:00+03:00",
+  "invariants": [
+    "never merge PR #1",
+    "never touch canonical PUPIS_EVO without explicit owner authorization",
+    "never touch JARVIS_FRESH",
+    "fetch current blob SHA before every update",
+    "on 409 CONFLICT refetch and reconcile before retry",
+    "require CI/log evidence before claiming PASS"
+  ],
+  "evidence": {
+    "repeatability_run": 35749102629,
+    "deliberate_fail": {
+      "commit": "7ca53d0d28dbff8b94927fc8a31f256ac0a70ac8",
+      "run": 35752937926,
+      "result": "FAIL",
+      "marker": "DELIBERATE_FAIL_PROBE",
+      "exit_code": 7
+    },
+    "autonomous_recovery": {
+      "commit": "c907b3673024f52cb764f9741982044cafabe8dd",
+      "run": 35753140963,
+      "result": "PASS",
+      "marker": "RECOVERY_PASS_PROBE"
+    },
+    "exact_bytes": {
+      "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+      "runtime_to_drive_to_github": "PASS"
+    },
+    "stale_head_guard": {
+      "stale_update_result": "409_CONFLICT",
+      "recovered_commit": "0c82649dbc3abe1a049cbfafbbefa865f3fb4278",
+      "push_run": 35753385529,
+      "pr_run": 35753392050,
+      "final_content": "VERSION=3_RECOVERED"
+    },
+    "codex_review": {
+      "request_comment_id": 5780033113,
+      "status": "PENDING"
+    }
+  },
+  "next_actions": [
+    "collect Codex review result without making PR mergeable",
+    "verify a scheduled automation cycle reads and updates this state without user copy/paste",
+    "continue only isolated scratch hardening"
+  ]
+}
