@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import hashlib
 import json
 import subprocess
 import sys
@@ -28,11 +29,13 @@ def base_state():
     }
 
 
-def run_driver(queue, *, optimized=False):
+def run_driver(queue, *, optimized=False, extra_files=None):
     temp = tempfile.TemporaryDirectory()
     root = Path(temp.name)
     write_json(root / "autonomy_queue.json", queue)
     write_json(root / "autonomy_state.json", base_state())
+    for name, content in (extra_files or {}).items():
+        (root / name).write_bytes(content if isinstance(content, bytes) else content.encode("utf-8"))
 
     cmd = [sys.executable]
     if optimized:
@@ -103,6 +106,134 @@ class DriverSafetyTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("unsupported task kind", result.stderr + result.stdout)
         self.assertFalse((root / "driver_probe.txt").exists())
+
+    def test_queue_integrity_recheck_accepts_valid_prefix(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 1,
+            "max_cycles": 2,
+            "tasks": [
+                {"id": "done", "kind": "counter", "expected_probe": "CI_PASS"},
+                {"id": "audit", "kind": "queue-integrity-recheck", "expected_probe": "CI_PASS"},
+            ],
+            "evidence": [
+                {"index": 0, "task_id": "done", "kind": "counter", "result": "PASS"}
+            ],
+        }
+        temp, root, result = run_driver(queue)
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        final_queue = json.loads((root / "autonomy_queue.json").read_text(encoding="utf-8"))
+        self.assertEqual(final_queue["last_completed"], "audit")
+        self.assertEqual(final_queue["evidence"][-1]["details"]["verified_records"], 1)
+
+    def test_queue_integrity_recheck_rejects_mismatched_evidence(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 1,
+            "max_cycles": 2,
+            "tasks": [
+                {"id": "done", "kind": "counter", "expected_probe": "CI_PASS"},
+                {"id": "audit", "kind": "queue-integrity-recheck", "expected_probe": "CI_PASS"},
+            ],
+            "evidence": [
+                {"index": 0, "task_id": "WRONG", "kind": "counter", "result": "PASS"}
+            ],
+        }
+        temp, root, result = run_driver(queue)
+        self.addCleanup(temp.cleanup)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("queue evidence task mismatch", result.stderr + result.stdout)
+
+    def test_critical_hash_snapshot_records_all_critical_files(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "hash", "kind": "critical-hash-snapshot", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+        }
+        extra = {
+            "chat_mode_ci_probe.py": "print('ok')\n",
+            "exact_bytes_probe.py": b"\xef\xbb\xbfVALUE=1\r\n",
+            "race_guard_probe.txt": "VERSION=3_RECOVERED\n",
+        }
+        temp, root, result = run_driver(queue, extra_files=extra)
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        final_queue = json.loads((root / "autonomy_queue.json").read_text(encoding="utf-8"))
+        hashes = final_queue["evidence"][-1]["details"]["sha256"]
+        self.assertEqual(set(hashes), {
+            "chat_mode_ci_probe.py",
+            "exact_bytes_probe.py",
+            "race_guard_probe.txt",
+            "autonomy_queue.json",
+        })
+        self.assertEqual(
+            hashes["chat_mode_ci_probe.py"],
+            hashlib.sha256(extra["chat_mode_ci_probe.py"].encode("utf-8")).hexdigest(),
+        )
+
+    def test_symlink_guard_rejects_critical_symlink(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "links", "kind": "symlink-guard", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+        }
+        temp, root, result = run_driver(queue)
+        self.addCleanup(temp.cleanup)
+        # Re-run manually after creating the critical files/symlink.
+        (root / "chat_mode_ci_probe.py").write_text("print('ok')\n", encoding="utf-8")
+        (root / "exact_bytes_probe.py").write_text("x=1\n", encoding="utf-8")
+        (root / "race_guard_probe.txt").write_text("VERSION=3_RECOVERED\n", encoding="utf-8")
+        target = root / "real_state.json"
+        target.write_text("{}\n", encoding="utf-8")
+        (root / "autonomy_state.json").unlink()
+        (root / "autonomy_state.json").symlink_to(target)
+        cmd = [sys.executable, str(DRIVER), "--worktree", str(root)]
+        result = subprocess.run(cmd, text=True, capture_output=True, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("critical symlinks are forbidden", result.stderr + result.stdout)
+
+    def test_probe_syntax_recheck_rejects_invalid_python(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "syntax", "kind": "probe-syntax-recheck", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+        }
+        temp, root, result = run_driver(
+            queue,
+            extra_files={"chat_mode_ci_probe.py": "def broken(:\n"},
+        )
+        self.addCleanup(temp.cleanup)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("SyntaxError", result.stderr + result.stdout)
+
 
     def test_legal_counter_task_completes_once(self):
         queue = {
