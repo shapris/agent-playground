@@ -1,0 +1,66 @@
+name: PUPIS Autonomy Scratch Watchdog
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-autonomy-watchdog.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-autonomy-watchdog.yml
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pupis-autonomy-scratch-watchdog
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout isolated scratch branch
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          persist-credentials: false
+
+      - name: Execute scratch probe
+        run: python chat_mode_ci_probe.py
+
+      - name: Verify autonomy SSOT and safety invariants
+        shell: python
+        run: |
+          import hashlib
+          import json
+          from pathlib import Path
+
+          state = json.loads(Path("autonomy_state.json").read_text(encoding="utf-8"))
+          assert state["scope"] == "scratch-only"
+          assert state["repository"] == "shapris/agent-playground"
+          assert state["branch"] == "chat-mode-ci-probe-20260922"
+          assert state["pull_request"] == 1
+          assert set(state["canonical_projects_locked"]) == {"PUPIS_EVO", "JARVIS_FRESH"}
+
+          invariants = set(state["invariants"])
+          assert "never merge PR #1" in invariants
+          assert "never touch canonical PUPIS_EVO without explicit owner authorization" in invariants
+          assert "never touch JARVIS_FRESH" in invariants
+          assert "fetch current blob SHA before every update" in invariants
+          assert "on 409 CONFLICT refetch and reconcile before retry" in invariants
+          assert "require CI/log evidence before claiming PASS" in invariants
+
+          expected = state["evidence"]["exact_bytes"]["sha256"]
+          actual = hashlib.sha256(Path("exact_bytes_probe.py").read_bytes()).hexdigest()
+          assert actual == expected, (actual, expected)
+
+          assert Path("race_guard_probe.txt").read_text(encoding="utf-8") == "VERSION=3_RECOVERED\n"
+          print("WATCHDOG_PASS")
