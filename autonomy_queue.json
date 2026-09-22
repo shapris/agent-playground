@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "active",
-  "index": 3,
+  "status": "complete",
+  "index": 4,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,7 +27,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "hardening-3",
+  "last_completed": "hardening-4",
   "evidence": [
     {
       "index": 0,
@@ -57,6 +57,16 @@
       "verified_at_utc": "2026-09-22T17:07:35.348759+00:00",
       "details": {
         "probe_safe": true
+      }
+    },
+    {
+      "index": 3,
+      "task_id": "hardening-4",
+      "kind": "counter",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T17:07:52.588085+00:00",
+      "details": {
+        "driver_probe": "cycle-4"
       }
     }
   ],
