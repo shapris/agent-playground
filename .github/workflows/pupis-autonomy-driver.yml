@@ -130,7 +130,7 @@ jobs:
           if gate is None:
               allowed = True
               reason = "no_gate"
-          elif gate == "WAIT_FOR_CODEX_REVIEW_RELAY":
+          elif gate in {"WAIT_FOR_CODEX_REVIEW_RELAY", "WAIT_FOR_CODEX_BELL"}:
               expected = queue.get("gate_release_token") or ""
               supplied = os.environ.get("RELEASE_TOKEN") or ""
               allowed = (
@@ -138,7 +138,7 @@ jobs:
                   and bool(expected)
                   and supplied == expected
               )
-              reason = "codex_review_relay_token"
+              reason = f"external_gate_token:{gate}"
           else:
               allowed = False
               reason = f"unknown_gate:{gate}"
