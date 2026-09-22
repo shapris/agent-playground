@@ -62,23 +62,39 @@ jobs:
         if: steps.scope.outputs.allowed == 'true'
         id: gate
         shell: python
+        env:
+          REVIEW_PR: ${{ github.event.pull_request.number }}
+          REVIEW_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           import json
+          import os
           from pathlib import Path
 
           queue = json.loads(
               Path("scratch/autonomy_queue.json").read_text(encoding="utf-8")
           )
+          review_pr = int(os.environ["REVIEW_PR"])
+          review_sha = os.environ["REVIEW_SHA"]
+          expected_token = f"codex:{review_pr}:{review_sha}"
+
           active = (
               queue.get("scope") == "scratch-only"
               and queue.get("branch") == "chat-mode-ci-probe-20260922"
               and queue.get("status") == "active"
               and int(queue.get("index", 0)) < int(queue.get("max_cycles", 0))
               and int(queue.get("max_cycles", 0)) <= 6
+              and queue.get("gate") == "WAIT_FOR_CODEX_REVIEW_RELAY"
+              and int(queue.get("gate_pr", -1)) == review_pr
+              and queue.get("gate_head_sha") == review_sha
+              and queue.get("gate_release_token") == expected_token
           )
-          with open(__import__("os").environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               out.write(f"dispatch={'true' if active else 'false'}\n")
-          print(f"CODEX_REVIEW_GATE active={active}")
+              out.write(f"release_token={expected_token if active else ''}\n")
+          print(
+              f"CODEX_REVIEW_GATE active={active} "
+              f"review_pr={review_pr} review_sha={review_sha}"
+          )
 
       - name: Dispatch bounded worker after Codex review
         if: steps.scope.outputs.allowed == 'true' && steps.gate.outputs.dispatch == 'true'
@@ -86,6 +102,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
+          RELEASE_TOKEN: ${{ steps.gate.outputs.release_token }}
         run: |
           import json
           import os
