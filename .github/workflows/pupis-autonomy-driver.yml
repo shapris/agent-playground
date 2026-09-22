@@ -13,9 +13,8 @@ on:
     types:
       - completed
   workflow_dispatch:
-
-permissions:
-  contents: write
+  schedule:
+    - cron: "*/15 * * * *"
 
 concurrency:
   group: pupis-bounded-autonomy-driver
@@ -32,7 +31,7 @@ jobs:
       - name: Validate trusted driver source
         run: python -m py_compile .github/scripts/pupis_autonomy_driver.py
 
-  advance:
+  probe:
     if: >-
       github.event_name != 'pull_request' &&
       (
@@ -43,6 +42,45 @@ jobs:
         )
       )
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 3
+    steps:
+      - name: Checkout isolated scratch branch read-only
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          persist-credentials: false
+
+      - name: Execute scratch probe with read-only token
+        run: python chat_mode_ci_probe.py
+
+      - name: Verify scratch safety evidence
+        shell: python
+        run: |
+          import hashlib
+          import json
+          from pathlib import Path
+
+          state = json.loads(Path("autonomy_state.json").read_text(encoding="utf-8"))
+          assert state["scope"] == "scratch-only"
+          assert state["branch"] == "chat-mode-ci-probe-20260922"
+          assert set(state["canonical_projects_locked"]) == {"PUPIS_EVO", "JARVIS_FRESH"}
+
+          expected = state["evidence"]["exact_bytes"]["sha256"]
+          actual = hashlib.sha256(Path("exact_bytes_probe.py").read_bytes()).hexdigest()
+          assert actual == expected, (actual, expected)
+          assert Path("race_guard_probe.txt").read_text(encoding="utf-8") == "VERSION=3_RECOVERED\n"
+          print("DRIVER_PROBE_PASS")
+
+  advance:
+    needs:
+      - probe
+    if: needs.probe.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     timeout-minutes: 3
     steps:
       - name: Checkout trusted driver source
@@ -63,6 +101,7 @@ jobs:
         run: python trusted/.github/scripts/pupis_autonomy_driver.py --worktree scratch
 
       - name: Enforce write allowlist and push only if changed
+        id: push
         shell: bash
         run: |
           set -euo pipefail
@@ -71,6 +110,7 @@ jobs:
           changed="$(git status --porcelain | awk '{print $2}')"
           if [ -z "$changed" ]; then
             echo "DRIVER_NO_CHANGES"
+            echo "continue=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -91,8 +131,64 @@ jobs:
 
           if git diff --cached --quiet; then
             echo "DRIVER_NO_STAGED_CHANGES"
+            echo "continue=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           git commit -m "bot: advance bounded autonomy queue"
           git push origin HEAD:chat-mode-ci-probe-20260922
+
+          queue_status="$(python - <<'PY'
+import json
+from pathlib import Path
+q = json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8"))
+print(q.get("status", "unknown"))
+PY
+)"
+          if [ "$queue_status" = "active" ]; then
+            echo "continue=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "continue=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "queue_status=$queue_status" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch next bounded cycle
+        if: steps.push.outputs.continue == 'true'
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          token = os.environ["GH_TOKEN"]
+          url = (
+              f"https://api.github.com/repos/{repo}/actions/workflows/"
+              "pupis-autonomy-driver.yml/dispatches"
+          )
+          payload = json.dumps({"ref": "main"}).encode("utf-8")
+          request = urllib.request.Request(
+              url,
+              data=payload,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status != 204:
+                      raise RuntimeError(f"Unexpected dispatch HTTP {response.status}")
+                  print("NEXT_CYCLE_DISPATCHED")
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(
+                  f"Self-dispatch failed: HTTP {exc.code}: {detail}"
+              ) from exc
