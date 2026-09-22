@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "repository": "shapris/agent-playground",
+  "branch": "chat-mode-ci-probe-20260922",
+  "pull_request": 1,
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "exact_bytes_sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+  "race_guard_text": "VERSION=3_RECOVERED\n",
+  "probe_required_markers": [
+    "DRIVE_TO_GITHUB_CI_OK"
+  ]
+}

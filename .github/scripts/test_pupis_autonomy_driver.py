@@ -341,6 +341,55 @@ class DriverSafetyTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("permits only expression statements", result.stderr + result.stdout)
 
+    def test_exact_byte_recheck_uses_trusted_baseline_not_mutable_state(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "exact", "kind": "exact-byte-recheck", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+        }
+        exact = (
+            b"\xef\xbb\xbf# exact-byte probe\r\n"
+            b'VALUE = "\xc4\x84\xc5\xbdUOLAS-17"\r\n'
+            b'TAIL = "\xc5\xbe\xc4\x85sis"\r\n'
+        )
+        temp, root, result = run_driver(
+            queue,
+            extra_files={"exact_bytes_probe.py": exact},
+        )
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertIn("EVIDENCE_JOURNAL_APPENDED", result.stdout)
+
+    def test_legal_counter_task_creates_append_only_evidence_record(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "journal", "kind": "counter", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+        }
+        temp, root, result = run_driver(queue)
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        records = list((root / "autonomy_evidence").glob("*.json"))
+        self.assertEqual(len(records), 1)
+        record = json.loads(records[0].read_text(encoding="utf-8"))
+        self.assertEqual(record["task"]["task_id"], "journal")
+        self.assertEqual(record["task"]["result"], "PASS")
+        self.assertEqual(record["queue_status_after"], "complete")
+
     def test_legal_counter_task_completes_once(self):
         queue = {
             "schema": 1,
