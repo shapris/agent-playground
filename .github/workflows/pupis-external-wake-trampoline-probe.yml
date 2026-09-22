@@ -1,4 +1,4 @@
-name: PUPIS External Wake Trampoline Probe
+name: PUPIS Persistent Wake PR Tick Probe
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "WAKE_TRAMPOLINE_VALID"
+      - run: echo "PERSISTENT_WAKE_TICK_VALID"
 
   probe:
     if: github.event_name != 'pull_request'
@@ -29,72 +29,23 @@ jobs:
     timeout-minutes: 3
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: pupis-auto-review-wake-probe-20260922
           fetch-depth: 1
 
-      - name: Create one bounded wake PR
-        shell: python
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
+      - name: Push one bounded tick into persistent wake PR
+        shell: bash
         run: |
-          import base64
-          import json
-          import os
-          import subprocess
-          import urllib.error
-          import urllib.request
+          set -euo pipefail
+          mkdir -p wake_trampoline
+          printf 'PUPIS_PERSISTENT_WAKE_TICK run=%s\n' "$GITHUB_RUN_ID" > wake_trampoline/tick.txt
 
-          repo = os.environ["REPOSITORY"]
-          token = os.environ["GH_TOKEN"]
-          run_id = os.environ["RUN_ID"]
-          branch = f"pupis-wake-trampoline-{run_id}"
-          path = f"wake_trampoline/{run_id}.txt"
-          marker = f"PUPIS_EXTERNAL_WAKE_TRAMPOLINE run={run_id}\n"
+          git config user.name "pupis-wake-trampoline[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wake_trampoline/tick.txt
+          git commit -m "test: persistent wake PR tick $GITHUB_RUN_ID"
+          git push origin HEAD:pupis-auto-review-wake-probe-20260922
 
-          subprocess.run(["git", "config", "user.name", "pupis-wake-trampoline[bot]"], check=True)
-          subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], check=True)
-          subprocess.run(["git", "checkout", "-b", branch], check=True)
-          os.makedirs("wake_trampoline", exist_ok=True)
-          with open(path, "w", encoding="utf-8", newline="\n") as f:
-              f.write(marker)
-          subprocess.run(["git", "add", path], check=True)
-          subprocess.run(["git", "commit", "-m", "test: external wake trampoline marker"], check=True)
-          subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], check=True)
-
-          payload = {
-              "title": f"PUPIS wake trampoline probe {run_id}",
-              "head": branch,
-              "base": "main",
-              "body": (
-                  "One-shot scratch autonomy experiment. Do not merge. "
-                  "This PR was opened by github-actions[bot] to test whether an external "
-                  "GitHub App comment can break the GITHUB_TOKEN recursion boundary and "
-                  "wake a trusted event-driven relay. Canonical PUPIS_EVO and JARVIS_FRESH untouched."
-              ),
-              "draft": False,
-          }
-
-          req = urllib.request.Request(
-              f"https://api.github.com/repos/{repo}/pulls",
-              data=json.dumps(payload).encode("utf-8"),
-              method="POST",
-              headers={
-                  "Authorization": f"Bearer {token}",
-                  "Accept": "application/vnd.github+json",
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json",
-              },
-          )
-          try:
-              with urllib.request.urlopen(req, timeout=30) as response:
-                  result = json.loads(response.read().decode("utf-8"))
-                  print(f"WAKE_TRAMPOLINE_PR_CREATED number={result['number']} branch={branch}")
-          except urllib.error.HTTPError as exc:
-              detail = exc.read().decode("utf-8", errors="replace")
-              raise RuntimeError(f"PR create failed HTTP {exc.code}: {detail}") from exc
+          echo "PERSISTENT_WAKE_TICK_PUSHED run=$GITHUB_RUN_ID"
