@@ -1,0 +1,98 @@
+name: PUPIS Bounded Autonomy Driver
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-autonomy-driver.yml
+      - .github/scripts/pupis_autonomy_driver.py
+  workflow_run:
+    workflows:
+      - Chat Mode CI Probe
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pupis-bounded-autonomy-driver
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate trusted driver source
+        run: python -m py_compile .github/scripts/pupis_autonomy_driver.py
+
+  advance:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (
+        github.event_name != 'workflow_run' ||
+        (
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.conclusion == 'success'
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout trusted driver source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+
+      - name: Checkout isolated scratch branch
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          path: scratch
+          fetch-depth: 1
+
+      - name: Advance exactly one bounded queue task
+        run: python trusted/.github/scripts/pupis_autonomy_driver.py --worktree scratch
+
+      - name: Enforce write allowlist and push only if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd scratch
+
+          changed="$(git status --porcelain | awk '{print $2}')"
+          if [ -z "$changed" ]; then
+            echo "DRIVER_NO_CHANGES"
+            exit 0
+          fi
+
+          while IFS= read -r path; do
+            case "$path" in
+              autonomy_queue.json|autonomy_state.json|driver_probe.txt)
+                ;;
+              *)
+                echo "BLOCKED_UNEXPECTED_PATH=$path"
+                exit 20
+                ;;
+            esac
+          done <<< "$changed"
+
+          git config user.name "pupis-autonomy-driver[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add autonomy_queue.json autonomy_state.json driver_probe.txt 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "DRIVER_NO_STAGED_CHANGES"
+            exit 0
+          fi
+
+          git commit -m "bot: advance bounded autonomy queue"
+          git push origin HEAD:chat-mode-ci-probe-20260922
