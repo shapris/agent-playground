@@ -1,0 +1,110 @@
+name: PUPIS Draft Bell Trigger Probe
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-draft-bell-trigger-probe.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-draft-bell-trigger-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "DRAFT_BELL_TRIGGER_VALID"
+
+  ring:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Mark persistent draft PR ready
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_PR: "28"
+        run: |
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          owner, name = repo.split("/", 1)
+          token = os.environ["GH_TOKEN"]
+          number = int(os.environ["TARGET_PR"])
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "Content-Type": "application/json",
+          }
+
+          rest = f"https://api.github.com/repos/{repo}/pulls/{number}"
+          req = urllib.request.Request(rest, headers=headers)
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  pr = json.loads(response.read().decode("utf-8"))
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(f"PR lookup failed HTTP {exc.code}: {detail}") from exc
+
+          if not pr.get("draft"):
+              print("DRAFT_BELL_ALREADY_READY")
+              raise SystemExit(0)
+
+          node_id = pr["node_id"]
+          query = """
+          mutation($id: ID!) {
+            markPullRequestReadyForReview(input: {pullRequestId: $id}) {
+              pullRequest {
+                number
+                isDraft
+                headRefName
+              }
+            }
+          }
+          """
+          payload = json.dumps({
+              "query": query,
+              "variables": {"id": node_id},
+          }).encode("utf-8")
+
+          req = urllib.request.Request(
+              "https://api.github.com/graphql",
+              data=payload,
+              method="POST",
+              headers=headers,
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  result = json.loads(response.read().decode("utf-8"))
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(
+                  f"Draft bell GraphQL failed HTTP {exc.code}: {detail}"
+              ) from exc
+
+          if result.get("errors"):
+              raise RuntimeError(f"Draft bell GraphQL errors: {result['errors']}")
+
+          out = result["data"]["markPullRequestReadyForReview"]["pullRequest"]
+          if out["isDraft"]:
+              raise RuntimeError("PR remained draft after mutation")
+          print(
+              f"DRAFT_BELL_READY_PASS pr={out['number']} head={out['headRefName']}"
+          )
