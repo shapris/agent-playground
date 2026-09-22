@@ -8,6 +8,13 @@ from pathlib import Path
 
 SCRATCH_BRANCH = "chat-mode-ci-probe-20260922"
 CANONICAL_LOCKS = {"PUPIS_EVO", "JARVIS_FRESH"}
+HARD_MAX_CYCLES = 6
+ALLOWED_TASK_KINDS = {
+    "counter",
+    "exact-byte-recheck",
+    "race-guard-recheck",
+    "continuity-seal",
+}
 
 
 def load_json(path: Path):
@@ -44,6 +51,15 @@ def main():
     index = int(queue.get("index", 0))
     tasks = queue["tasks"]
     max_cycles = int(queue["max_cycles"])
+
+    assert 1 <= max_cycles <= HARD_MAX_CYCLES, max_cycles
+    assert 1 <= len(tasks) <= HARD_MAX_CYCLES, len(tasks)
+    assert 0 <= index <= max_cycles, index
+    task_ids = [task["id"] for task in tasks]
+    assert len(task_ids) == len(set(task_ids)), task_ids
+    for task in tasks:
+        assert task["kind"] in ALLOWED_TASK_KINDS, task["kind"]
+        assert task.get("expected_probe") == "CI_PASS", task
 
     if index >= len(tasks) or index >= max_cycles:
         queue["status"] = "complete"
