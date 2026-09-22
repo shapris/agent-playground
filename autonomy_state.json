@@ -10,8 +10,8 @@
     "JARVIS_FRESH"
   ],
   "status": "PASS",
-  "phase": "event-driven-watchdog-hardening",
-  "last_verified_local": "2026-09-22T19:42:00+03:00",
+  "phase": "architect-hourly-worker-burst",
+  "last_verified_local": "2026-09-22T20:04:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -102,20 +102,49 @@
       "probe_sequence": 1,
       "requested_at_local": "2026-09-22T19:42:00+03:00",
       "purpose": "prove workflow_run wakes watchdog immediately after scratch CI completion",
-      "status": "PENDING"
+      "status": "PASS",
+      "workflow_run_wake_latency_seconds": 3,
+      "native_status": "PASS"
     },
     "bounded_autonomy_driver": {
       "status": "COMPLETE",
       "completed_cycles": 4,
       "max_cycles": 4,
-      "last_task": "cycle-4",
-      "last_verified_utc": "2026-09-22T17:03:57.181710+00:00"
+      "queue_status": "complete",
+      "final_head": "8bf4e1a5b762eaacc8938bcdef9afe26b4558911",
+      "cycle_evidence": [
+        {
+          "task": "cycle-1",
+          "kind": "counter",
+          "result": "PASS"
+        },
+        {
+          "task": "cycle-2",
+          "kind": "exact-byte-recheck",
+          "result": "PASS",
+          "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
+        },
+        {
+          "task": "cycle-3",
+          "kind": "race-guard-recheck",
+          "result": "PASS",
+          "value": "VERSION=3_RECOVERED"
+        },
+        {
+          "task": "cycle-4",
+          "kind": "continuity-seal",
+          "result": "PASS"
+        }
+      ],
+      "self_dispatch": "PASS",
+      "bounded_stop": "PASS",
+      "manual_intervention_after_final_kick": false
     }
   },
   "next_actions": [
-    "wait for independent review of watchdog PR #3",
-    "if watchdog review is clean, merge PR #3 in scratch repository only and verify first main/default-branch watchdog run",
-    "verify scheduled watchdog begins running without user messages",
-    "continue isolated event-driven autonomy hardening"
+    "director should seed a new bounded multi-step queue when current queue is complete and all gates are PASS",
+    "worker should execute queued steps through workflow_dispatch self-chaining and stop at queue limit",
+    "expand trusted driver task catalog only through reviewed main-branch changes",
+    "continue isolated scratch hardening without touching canonical PUPIS_EVO or JARVIS_FRESH"
   ]
 }
