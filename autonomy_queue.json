@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 1,
+  "index": 2,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,7 +27,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "cycle-1",
+  "last_completed": "cycle-2",
   "evidence": [
     {
       "index": 0,
@@ -37,6 +37,16 @@
       "verified_at_utc": "2026-09-22T16:59:57.353120+00:00",
       "details": {
         "driver_probe": "cycle-1"
+      }
+    },
+    {
+      "index": 1,
+      "task_id": "cycle-2",
+      "kind": "exact-byte-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T17:03:12.369506+00:00",
+      "details": {
+        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
       }
     }
   ],
