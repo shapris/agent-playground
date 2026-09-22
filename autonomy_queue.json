@@ -2,29 +2,18 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 1,
+  "status": "active",
+  "index": 0,
   "max_cycles": 1,
   "tasks": [
     {
-      "id": "codex-relay-1",
+      "id": "codex-gated-proof-1",
       "kind": "probe-syntax-recheck",
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "codex-relay-1",
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "codex-relay-1",
-      "kind": "probe-syntax-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T19:19:13.887904+00:00",
-      "details": {
-        "syntax": "PASS"
-      }
-    }
-  ],
+  "last_completed": null,
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -33,5 +22,5 @@
     "stop after max_cycles"
   ],
   "gate": "WAIT_FOR_CODEX_REVIEW_RELAY",
-  "note": "Do not kick directly; this queue is intentionally waiting for Codex review event relay."
+  "note": "GATED PROOF: workflow_run/schedule may probe but must not advance; Codex review relay workflow_dispatch is the only release."
 }
