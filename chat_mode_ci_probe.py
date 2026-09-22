@@ -1,2 +1,3 @@
 print("DRIVE_TO_GITHUB_CI_OK")
-print("REPEATABILITY_PROBE_2")
+print("DELIBERATE_FAIL_PROBE")
+raise SystemExit(7)
