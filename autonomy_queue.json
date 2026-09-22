@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 1,
+  "index": 2,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,7 +37,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "v3-1",
+  "last_completed": "v3-2",
   "evidence": [
     {
       "index": 0,
@@ -47,6 +47,22 @@
       "verified_at_utc": "2026-09-22T18:56:43.529182+00:00",
       "details": {
         "schema": "PASS"
+      }
+    },
+    {
+      "index": 1,
+      "task_id": "v3-2",
+      "kind": "critical-size-bounds",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:57:19.330713+00:00",
+      "details": {
+        "bytes": {
+          "chat_mode_ci_probe.py": 63,
+          "exact_bytes_probe.py": 65,
+          "race_guard_probe.txt": 20,
+          "autonomy_queue.json": 1316,
+          "autonomy_state.json": 7173
+        }
       }
     }
   ],
