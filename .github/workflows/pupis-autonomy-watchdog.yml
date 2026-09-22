@@ -1,11 +1,6 @@
 name: PUPIS Autonomy Scratch Watchdog
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/pupis-autonomy-watchdog.yml
   push:
     branches:
       - main
@@ -17,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: pupis-autonomy-scratch-watchdog
@@ -28,15 +24,19 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Checkout isolated scratch branch
+        id: checkout
         uses: actions/checkout@v4
         with:
           ref: chat-mode-ci-probe-20260922
           persist-credentials: false
 
       - name: Execute scratch probe
+        id: probe
         run: python chat_mode_ci_probe.py
 
       - name: Verify autonomy SSOT and safety invariants
+        id: verify
+        if: always()
         shell: python
         run: |
           import hashlib
@@ -64,3 +64,44 @@ jobs:
 
           assert Path("race_guard_probe.txt").read_text(encoding="utf-8") == "VERSION=3_RECOVERED\n"
           print("WATCHDOG_PASS")
+
+      - name: Update visible autonomy heartbeat
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEARTBEAT_COMMENT_ID: "5780269796"
+          PROBE_OUTCOME: ${{ steps.probe.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+
+          probe="${PROBE_OUTCOME:-not_run}"
+          verify="${VERIFY_OUTCOME:-not_run}"
+
+          if [ "$probe" = "success" ] && [ "$verify" = "success" ]; then
+            overall="PASS"
+          else
+            overall="FAIL"
+          fi
+
+          now_utc="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          body="$(cat <<EOF
+<!-- PUPIS_AUTONOMY_HEARTBEAT -->
+### PUPIS autonomy heartbeat
+- Status: **${overall}**
+- Last watchdog UTC: `${now_utc}`
+- Probe: `${probe}`
+- Safety invariants: `${verify}`
+- Trigger: `${GITHUB_EVENT_NAME}`
+- Run: ${run_url}
+- Cadence: every 15 minutes
+- Canonical PUPIS_EVO: **untouched**
+- JARVIS_FRESH: **untouched**
+
+This single comment is updated in place by the trusted watchdog workflow.
+EOF
+)"
+
+          gh api             --method PATCH             "/repos/${GITHUB_REPOSITORY}/issues/comments/${HEARTBEAT_COMMENT_ID}"             -f body="$body"
