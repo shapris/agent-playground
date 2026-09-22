@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "active",
-  "index": 3,
+  "status": "complete",
+  "index": 4,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,7 +27,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "cycle-3",
+  "last_completed": "cycle-4",
   "evidence": [
     {
       "index": 0,
@@ -57,6 +57,16 @@
       "verified_at_utc": "2026-09-22T17:03:29.698106+00:00",
       "details": {
         "race_guard": "VERSION=3_RECOVERED"
+      }
+    },
+    {
+      "index": 3,
+      "task_id": "cycle-4",
+      "kind": "continuity-seal",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T17:03:57.181710+00:00",
+      "details": {
+        "probe_safe": true
       }
     }
   ],

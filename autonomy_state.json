@@ -105,11 +105,11 @@
       "status": "PENDING"
     },
     "bounded_autonomy_driver": {
-      "status": "RUNNING",
-      "completed_cycles": 3,
+      "status": "COMPLETE",
+      "completed_cycles": 4,
       "max_cycles": 4,
-      "last_task": "cycle-3",
-      "last_verified_utc": "2026-09-22T17:03:29.698106+00:00"
+      "last_task": "cycle-4",
+      "last_verified_utc": "2026-09-22T17:03:57.181710+00:00"
     }
   },
   "next_actions": [
