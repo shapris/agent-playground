@@ -2,110 +2,19 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 6,
+  "status": "ready",
+  "index": 0,
   "max_cycles": 6,
   "tasks": [
-    {
-      "id": "v3-1",
-      "kind": "state-schema-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v3-2",
-      "kind": "critical-size-bounds",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v3-3",
-      "kind": "encoding-profile-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v3-4",
-      "kind": "probe-capability-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v3-5",
-      "kind": "exact-byte-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v3-6",
-      "kind": "queue-integrity-recheck",
-      "expected_probe": "CI_PASS"
-    }
+    {"id": "v4-1", "kind": "critical-hash-snapshot", "expected_probe": "CI_PASS"},
+    {"id": "v4-2", "kind": "symlink-guard", "expected_probe": "CI_PASS"},
+    {"id": "v4-3", "kind": "probe-syntax-recheck", "expected_probe": "CI_PASS"},
+    {"id": "v4-4", "kind": "probe-capability-recheck", "expected_probe": "CI_PASS"},
+    {"id": "v4-5", "kind": "state-schema-recheck", "expected_probe": "CI_PASS"},
+    {"id": "v4-6", "kind": "queue-integrity-recheck", "expected_probe": "CI_PASS"}
   ],
-  "last_completed": "v3-6",
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "v3-1",
-      "kind": "state-schema-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:56:43.529182+00:00",
-      "details": {
-        "schema": "PASS"
-      }
-    },
-    {
-      "index": 1,
-      "task_id": "v3-2",
-      "kind": "critical-size-bounds",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:57:19.330713+00:00",
-      "details": {
-        "bytes": {
-          "chat_mode_ci_probe.py": 63,
-          "exact_bytes_probe.py": 65,
-          "race_guard_probe.txt": 20,
-          "autonomy_queue.json": 1316,
-          "autonomy_state.json": 7173
-        }
-      }
-    },
-    {
-      "index": 2,
-      "task_id": "v3-3",
-      "kind": "encoding-profile-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:57:37.756850+00:00",
-      "details": {
-        "profile": "BOM+CRLF exact / UTF8+LF probe"
-      }
-    },
-    {
-      "index": 3,
-      "task_id": "v3-4",
-      "kind": "probe-capability-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:57:57.417331+00:00",
-      "details": {
-        "capability": "PRINT_CONSTANTS_ONLY"
-      }
-    },
-    {
-      "index": 4,
-      "task_id": "v3-5",
-      "kind": "exact-byte-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:58:17.109567+00:00",
-      "details": {
-        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
-      }
-    },
-    {
-      "index": 5,
-      "task_id": "v3-6",
-      "kind": "queue-integrity-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T18:58:33.838145+00:00",
-      "details": {
-        "verified_records": 5
-      }
-    }
-  ],
+  "last_completed": null,
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -113,6 +22,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "kick": 5,
-  "kick_reason": "validate trusted driver catalog v3"
+  "kick": 6,
+  "kick_reason": "autonomy hardening batch v4: integrity and capability chain"
 }
