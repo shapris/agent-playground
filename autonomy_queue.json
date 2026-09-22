@@ -47,6 +47,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "kick": 1,
-  "kick_reason": "start bounded 4-cycle autonomy chain after driver merge"
+  "kick": 2,
+  "kick_reason": "start self-dispatch chain after PR #6 merge"
 }
