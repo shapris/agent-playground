@@ -18,6 +18,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "CODEX_REVIEW_RELAY_VALID"
+      - name: Validate exact review-commit correlation rule
+        shell: python
+        run: |
+          def allowed(queue_sha, pr_head_sha, review_commit_id):
+              return (
+                  bool(queue_sha)
+                  and queue_sha == pr_head_sha
+                  and queue_sha == review_commit_id
+              )
+
+          assert allowed("abc", "abc", "abc") is True
+          assert allowed("abc", "abc", "old") is False
+          assert allowed("abc", "new", "abc") is False
+          assert allowed("", "", "") is False
+          print("CODEX_REVIEW_COMMIT_CORRELATION_TESTS_PASS")
 
   relay:
     if: >-
@@ -65,6 +80,7 @@ jobs:
         env:
           REVIEW_PR: ${{ github.event.pull_request.number }}
           REVIEW_SHA: ${{ github.event.pull_request.head.sha }}
+          REVIEW_COMMIT_ID: ${{ github.event.review.commit_id }}
         run: |
           import json
           import os
@@ -75,7 +91,12 @@ jobs:
           )
           review_pr = int(os.environ["REVIEW_PR"])
           review_sha = os.environ["REVIEW_SHA"]
-          expected_token = f"codex:{review_pr}:{review_sha}"
+          review_commit_id = os.environ["REVIEW_COMMIT_ID"]
+          exact_review_commit = (
+              bool(review_commit_id)
+              and review_commit_id == review_sha
+          )
+          expected_token = f"codex:{review_pr}:{review_commit_id}"
 
           active = (
               queue.get("scope") == "scratch-only"
@@ -85,7 +106,8 @@ jobs:
               and int(queue.get("max_cycles", 0)) <= 6
               and queue.get("gate") == "WAIT_FOR_CODEX_REVIEW_RELAY"
               and int(queue.get("gate_pr", -1)) == review_pr
-              and queue.get("gate_head_sha") == review_sha
+              and exact_review_commit
+              and queue.get("gate_head_sha") == review_commit_id
               and queue.get("gate_release_token") == expected_token
           )
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
@@ -93,7 +115,8 @@ jobs:
               out.write(f"release_token={expected_token if active else ''}\n")
           print(
               f"CODEX_REVIEW_GATE active={active} "
-              f"review_pr={review_pr} review_sha={review_sha}"
+              f"review_pr={review_pr} pr_head_sha={review_sha} "
+              f"review_commit_id={review_commit_id} exact={exact_review_commit}"
           )
 
       - name: Dispatch bounded worker after Codex review
