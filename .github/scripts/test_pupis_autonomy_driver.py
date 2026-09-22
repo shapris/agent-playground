@@ -208,6 +208,7 @@ class DriverSafetyTests(unittest.TestCase):
         write_json(target, base_state())
         (root / "autonomy_state.json").unlink()
         (root / "autonomy_state.json").symlink_to(target)
+        write_json(root / "autonomy_queue.json", queue)
         cmd = [sys.executable, str(DRIVER), "--worktree", str(root)]
         result = subprocess.run(cmd, text=True, capture_output=True, check=False)
         self.assertNotEqual(result.returncode, 0)
