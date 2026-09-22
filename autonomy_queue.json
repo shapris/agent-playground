@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,8 +37,19 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": null,
-  "evidence": [],
+  "last_completed": "v3-1",
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "v3-1",
+      "kind": "state-schema-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:56:43.529182+00:00",
+      "details": {
+        "schema": "PASS"
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
