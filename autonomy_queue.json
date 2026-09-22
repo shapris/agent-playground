@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "status": "active",
+  "index": 0,
+  "max_cycles": 4,
+  "tasks": [
+    {
+      "id": "cycle-1",
+      "kind": "counter",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "cycle-2",
+      "kind": "exact-byte-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "cycle-3",
+      "kind": "race-guard-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "cycle-4",
+      "kind": "continuity-seal",
+      "expected_probe": "CI_PASS"
+    }
+  ],
+  "last_completed": null,
+  "evidence": [],
+  "safety": [
+    "scratch branch only",
+    "never merge PR #1",
+    "never touch canonical PUPIS_EVO",
+    "never touch JARVIS_FRESH",
+    "stop after max_cycles"
+  ]
+}
