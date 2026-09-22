@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/pupis-autonomy-driver.yml
       - .github/scripts/pupis_autonomy_driver.py
+      - .github/scripts/test_pupis_autonomy_driver.py
   workflow_run:
     workflows:
       - Chat Mode CI Probe
@@ -29,7 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate trusted driver source
-        run: python -m py_compile .github/scripts/pupis_autonomy_driver.py
+        run: python -m py_compile .github/scripts/pupis_autonomy_driver.py .github/scripts/test_pupis_autonomy_driver.py
+
+      - name: Prove trusted driver safety boundary
+        run: python .github/scripts/test_pupis_autonomy_driver.py
 
   probe:
     if: >-
