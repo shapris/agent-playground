@@ -1,0 +1,76 @@
+name: PUPIS Review Event Sensor
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-review-event-sensor.yml
+  issue_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate sensor
+        run: echo "REVIEW_EVENT_SENSOR_VALID"
+
+  observe:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Record bot event metadata only
+        shell: python
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          EVENT_PATH: ${{ github.event_path }}
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path(os.environ["EVENT_PATH"]).read_text(encoding="utf-8"))
+          event = os.environ["EVENT_NAME"]
+          actor = os.environ["ACTOR"]
+
+          pr_number = None
+          item_id = None
+          body = ""
+
+          if event == "issue_comment":
+              issue = data.get("issue") or {}
+              if "pull_request" not in issue:
+                  print("IGNORED_NON_PR_ISSUE_COMMENT")
+                  raise SystemExit(0)
+              pr_number = issue.get("number")
+              comment = data.get("comment") or {}
+              item_id = comment.get("id")
+              body = comment.get("body") or ""
+          elif event == "pull_request_review":
+              pr = data.get("pull_request") or {}
+              pr_number = pr.get("number")
+              review = data.get("review") or {}
+              item_id = review.get("id")
+              body = review.get("body") or ""
+          elif event == "pull_request_review_comment":
+              pr = data.get("pull_request") or {}
+              pr_number = pr.get("number")
+              comment = data.get("comment") or {}
+              item_id = comment.get("id")
+              body = comment.get("body") or ""
+
+          print(f"PUPIS_REVIEW_EVENT event={event} actor={actor} pr={pr_number} id={item_id}")
+          print(f"BODY_LEN={len(body)}")
