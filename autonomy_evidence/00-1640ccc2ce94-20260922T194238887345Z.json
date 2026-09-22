@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 0,
+    "task_id": "codex-correlated-proof-v3-1",
+    "kind": "probe-syntax-recheck",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-22T19:42:38.887266+00:00",
+    "details": {
+      "syntax": "PASS"
+    }
+  },
+  "queue_index_after": 1,
+  "queue_status_after": "complete",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}

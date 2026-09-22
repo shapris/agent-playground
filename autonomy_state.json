@@ -75,6 +75,14 @@
       "detected_problem": "background cycle replaced prior evidence map, removing exact_bytes",
       "correction": "autonomy_state retained as projection; critical invariants moved to trusted main baseline; worker task evidence journal made append-only",
       "recovered_at_utc": "2026-09-22T19:33:00Z"
+    },
+    "bounded_autonomy_driver": {
+      "status": "COMPLETE",
+      "completed_cycles": 1,
+      "max_cycles": 1,
+      "hard_max_cycles": 6,
+      "last_task": "codex-correlated-proof-v3-1",
+      "last_verified_utc": "2026-09-22T19:42:38.887266+00:00"
     }
   },
   "next_actions": [
