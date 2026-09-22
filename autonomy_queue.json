@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 3,
+  "index": 4,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,7 +37,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "v3-3",
+  "last_completed": "v3-4",
   "evidence": [
     {
       "index": 0,
@@ -73,6 +73,16 @@
       "verified_at_utc": "2026-09-22T18:57:37.756850+00:00",
       "details": {
         "profile": "BOM+CRLF exact / UTF8+LF probe"
+      }
+    },
+    {
+      "index": 3,
+      "task_id": "v3-4",
+      "kind": "probe-capability-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:57:57.417331+00:00",
+      "details": {
+        "capability": "PRINT_CONSTANTS_ONLY"
       }
     }
   ],
