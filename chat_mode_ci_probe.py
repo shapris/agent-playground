@@ -1,1 +1,2 @@
 print("DRIVE_TO_GITHUB_CI_OK")
+print("REPEATABILITY_PROBE_2")
