@@ -32,6 +32,12 @@ jobs:
           assert allowed("abc", "abc", "old") is False
           assert allowed("abc", "new", "abc") is False
           assert allowed("", "", "") is False
+
+          def bell_token(branch, sha, nonce):
+              return f"bell:{branch}:{sha}:{nonce}"
+
+          assert bell_token("b", "s", "n") == "bell:b:s:n"
+          assert bell_token("b", "s", "") != "bell:b:s:n"
           print("CODEX_REVIEW_COMMIT_CORRELATION_TESTS_PASS")
 
   relay:
@@ -81,6 +87,8 @@ jobs:
           REVIEW_PR: ${{ github.event.pull_request.number }}
           REVIEW_SHA: ${{ github.event.pull_request.head.sha }}
           REVIEW_COMMIT_ID: ${{ github.event.review.commit_id }}
+          REVIEW_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          REVIEW_PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           import json
           import os
@@ -92,31 +100,60 @@ jobs:
           review_pr = int(os.environ["REVIEW_PR"])
           review_sha = os.environ["REVIEW_SHA"]
           review_commit_id = os.environ["REVIEW_COMMIT_ID"]
+          review_head_ref = os.environ["REVIEW_HEAD_REF"]
+          body = os.environ.get("REVIEW_PR_BODY") or ""
           exact_review_commit = (
               bool(review_commit_id)
               and review_commit_id == review_sha
           )
-          expected_token = f"codex:{review_pr}:{review_commit_id}"
 
-          active = (
+          bell_nonce = ""
+          for line in body.splitlines():
+              if line.startswith("PUPIS_CODEX_BELL_NONCE="):
+                  bell_nonce = line.split("=", 1)[1].strip()
+                  break
+
+          common = (
               queue.get("scope") == "scratch-only"
               and queue.get("branch") == "chat-mode-ci-probe-20260922"
               and queue.get("status") == "active"
               and int(queue.get("index", 0)) < int(queue.get("max_cycles", 0))
               and int(queue.get("max_cycles", 0)) <= 6
-              and queue.get("gate") == "WAIT_FOR_CODEX_REVIEW_RELAY"
-              and int(queue.get("gate_pr", -1)) == review_pr
               and exact_review_commit
-              and queue.get("gate_head_sha") == review_commit_id
-              and queue.get("gate_release_token") == expected_token
           )
+
+          gate = queue.get("gate")
+          if gate == "WAIT_FOR_CODEX_REVIEW_RELAY":
+              expected_token = f"codex:{review_pr}:{review_commit_id}"
+              active = (
+                  common
+                  and int(queue.get("gate_pr", -1)) == review_pr
+                  and queue.get("gate_head_sha") == review_commit_id
+                  and queue.get("gate_release_token") == expected_token
+              )
+          elif gate == "WAIT_FOR_CODEX_BELL":
+              expected_token = (
+                  f"bell:{review_head_ref}:{review_commit_id}:{bell_nonce}"
+              )
+              active = (
+                  common
+                  and bool(bell_nonce)
+                  and queue.get("gate_branch") == review_head_ref
+                  and queue.get("gate_head_sha") == review_commit_id
+                  and queue.get("gate_nonce") == bell_nonce
+                  and queue.get("gate_release_token") == expected_token
+              )
+          else:
+              expected_token = ""
+              active = False
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               out.write(f"dispatch={'true' if active else 'false'}\n")
               out.write(f"release_token={expected_token if active else ''}\n")
           print(
               f"CODEX_REVIEW_GATE active={active} "
-              f"review_pr={review_pr} pr_head_sha={review_sha} "
-              f"review_commit_id={review_commit_id} exact={exact_review_commit}"
+              f"gate={gate} review_pr={review_pr} head_ref={review_head_ref} "
+              f"pr_head_sha={review_sha} review_commit_id={review_commit_id} "
+              f"exact={exact_review_commit} bell_nonce={bool(bell_nonce)}"
           )
 
       - name: Dispatch bounded worker after Codex review
