@@ -111,8 +111,8 @@
       "completed_cycles": 1,
       "max_cycles": 1,
       "hard_max_cycles": 6,
-      "last_task": "codex-relay-1",
-      "last_verified_utc": "2026-09-22T19:19:13.887904+00:00"
+      "last_task": "codex-gated-proof-1",
+      "last_verified_utc": "2026-09-22T19:24:50.147848+00:00"
     },
     "driver_hard_cap": {
       "result": "PASS",
