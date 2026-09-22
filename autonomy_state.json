@@ -108,11 +108,11 @@
     },
     "bounded_autonomy_driver": {
       "status": "COMPLETE",
-      "completed_cycles": 6,
-      "max_cycles": 6,
+      "completed_cycles": 1,
+      "max_cycles": 1,
       "hard_max_cycles": 6,
-      "last_task": "v3-6",
-      "last_verified_utc": "2026-09-22T18:58:33.838145+00:00"
+      "last_task": "codex-relay-1",
+      "last_verified_utc": "2026-09-22T19:19:13.887904+00:00"
     },
     "driver_hard_cap": {
       "result": "PASS",
