@@ -11,7 +11,7 @@
   ],
   "status": "PASS",
   "phase": "event-driven-watchdog-hardening",
-  "last_verified_local": "2026-09-22T19:35:00+03:00",
+  "last_verified_local": "2026-09-22T19:42:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -97,6 +97,12 @@
       "codex_review_request_comment_id": 5780233374,
       "codex_review_status": "PENDING",
       "qodo_status": "IN_PROGRESS"
+    },
+    "event_driven_watchdog": {
+      "probe_sequence": 1,
+      "requested_at_local": "2026-09-22T19:42:00+03:00",
+      "purpose": "prove workflow_run wakes watchdog immediately after scratch CI completion",
+      "status": "PENDING"
     }
   },
   "next_actions": [
