@@ -205,7 +205,7 @@ class DriverSafetyTests(unittest.TestCase):
         (root / "exact_bytes_probe.py").write_text("x=1\n", encoding="utf-8")
         (root / "race_guard_probe.txt").write_text("VERSION=3_RECOVERED\n", encoding="utf-8")
         target = root / "real_state.json"
-        target.write_text("{}\n", encoding="utf-8")
+        write_json(target, base_state())
         (root / "autonomy_state.json").unlink()
         (root / "autonomy_state.json").symlink_to(target)
         cmd = [sys.executable, str(DRIVER), "--worktree", str(root)]
