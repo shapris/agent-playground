@@ -138,13 +138,7 @@ jobs:
           git commit -m "bot: advance bounded autonomy queue"
           git push origin HEAD:chat-mode-ci-probe-20260922
 
-          queue_status="$(python - <<'PY'
-import json
-from pathlib import Path
-q = json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8"))
-print(q.get("status", "unknown"))
-PY
-)"
+          queue_status="$(python -c 'import json; from pathlib import Path; q=json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8")); print(q.get("status", "unknown"))')"
           if [ "$queue_status" = "active" ]; then
             echo "continue=true" >> "$GITHUB_OUTPUT"
           else
