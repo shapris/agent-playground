@@ -1,0 +1,100 @@
+name: PUPIS Driver Recovery Sentinel
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-recovery-sentinel.yml
+  workflow_run:
+    workflows:
+      - PUPIS Bounded Autonomy Driver
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate recovery sentinel scope
+        run: echo "RECOVERY_SENTINEL_PR_VALIDATION_PASS"
+
+  recover-cancelled:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout scratch queue read-only
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          persist-credentials: false
+
+      - name: Determine whether recovery is needed
+        id: gate
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          queue = json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8"))
+          if queue.get("scope") != "scratch-only":
+              raise RuntimeError("queue scope is not scratch-only")
+          if queue.get("branch") != "chat-mode-ci-probe-20260922":
+              raise RuntimeError("queue branch mismatch")
+
+          active = queue.get("status") == "active"
+          print(f"RECOVERY_QUEUE_ACTIVE={active}")
+          with open(__import__("os").environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"active={'true' if active else 'false'}\n")
+
+      - name: Dispatch bounded driver recovery
+        if: steps.gate.outputs.active == 'true'
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          token = os.environ["GH_TOKEN"]
+          url = (
+              f"https://api.github.com/repos/{repo}/actions/workflows/"
+              "pupis-autonomy-driver.yml/dispatches"
+          )
+          payload = json.dumps({"ref": "main"}).encode("utf-8")
+          req = urllib.request.Request(
+              url,
+              data=payload,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2026-03-10",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  if response.status != 204:
+                      raise RuntimeError(f"unexpected dispatch HTTP {response.status}")
+                  print("RECOVERY_SENTINEL_DISPATCHED")
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(
+                  f"recovery dispatch failed: HTTP {exc.code}: {detail}"
+              ) from exc
