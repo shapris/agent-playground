@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "active",
-  "index": 0,
+  "status": "complete",
+  "index": 1,
   "max_cycles": 1,
   "tasks": [
     {
@@ -12,8 +12,19 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": null,
-  "evidence": [],
+  "last_completed": "codex-bell-proof-35777022664",
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "codex-bell-proof-35777022664",
+      "kind": "probe-syntax-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T20:02:22.623528+00:00",
+      "details": {
+        "syntax": "PASS"
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
