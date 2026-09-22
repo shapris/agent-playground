@@ -11,7 +11,7 @@
   ],
   "status": "PASS_WITH_UI_WAKE_BLOCKER",
   "phase": "background-director-plus-event-driven-worker",
-  "last_verified_local": "2026-09-22T21:56:04+03:00",
+  "last_verified_local": "2026-09-22T22:03:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -187,13 +187,59 @@
         "race-guard-recheck",
         "queue-integrity-recheck"
       ]
+    },
+    "driver_catalog_v3": {
+      "result": "PASS",
+      "merge": "4a83f153d137e089dc30c438786028e3ecfb4800",
+      "task_kinds_added": [
+        "state-schema-recheck",
+        "critical-size-bounds",
+        "encoding-profile-recheck",
+        "probe-capability-recheck"
+      ],
+      "regression_run": 35770357740,
+      "batch_result": "6/6 PASS",
+      "final_queue_status": "complete",
+      "capability_policy": "chat_mode_ci_probe.py permits print(constant-string) statements only"
+    },
+    "driver_concurrency_queue": {
+      "result": "PASS",
+      "merge": "13eef29e5192aa60bb779759f4ba242d05c92ba7",
+      "validation_run": 35770778341,
+      "queue_mode": "max",
+      "reason": "GitHub default concurrency keeps only one pending run; queue:max prevents newer pending events from replacing older bounded cycles"
+    },
+    "recovery_sentinel": {
+      "result": "VALIDATED_NOT_YET_LIVE_PROVEN",
+      "merge": "f163dd2e36295f5f9a7026c3616ad93c52ff6f3e",
+      "validation_run": 35771018796,
+      "behavior": "on future cancelled bounded-driver run, read scratch queue and redispatch only if queue.status=active",
+      "repository_writes": false
+    },
+    "schedule_reactivation_api": {
+      "result": "ACTIVE_BUT_NO_SCHEDULE_EVENT",
+      "reactivator_run": 35769981068,
+      "watchdog_state_before": "active",
+      "watchdog_state_after": "active",
+      "driver_state_before": "active",
+      "driver_state_after": "active",
+      "schedule_runs_observed": 0
+    },
+    "replit_secondary": {
+      "result": "UNRELIABLE",
+      "latest_probe": "timeout",
+      "role": "secondary only"
+    },
+    "github_agentic_workflows": {
+      "result": "NOT_USED",
+      "reason": "official GitHub Agentic Workflows consume AI Credits/inference cost; owner has not authorized paid/AI credit use"
     }
   },
   "next_actions": [
-    "continue architecture work in the hourly background Director instead of relying on broken notify_parent",
-    "use the event-driven GitHub worker for fast bounded multi-step bursts between Director runs",
-    "keep expanding the trusted deterministic task catalog and failure recovery paths",
-    "treat schedule fallback as BLOCKED_OR_DELAYED until GitHub emits a real event=schedule run",
+    "keep hourly background Director active and use event-driven bounded worker bursts between Director turns",
+    "verify whether GitHub ever emits a real event=schedule run; treat cron fallback as blocked until concrete run evidence exists",
+    "observe Recovery Sentinel on the next real cancelled driver event; do not claim live recovery PASS before evidence",
+    "continue expanding trusted deterministic diagnostics and bounded recovery without AI credits",
     "never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"
   ]
 }
