@@ -2,74 +2,43 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 4,
-  "max_cycles": 4,
+  "status": "active",
+  "index": 0,
+  "max_cycles": 6,
   "tasks": [
     {
-      "id": "hardening-1",
+      "id": "catalog-v2-1",
+      "kind": "critical-hash-snapshot",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "catalog-v2-2",
+      "kind": "probe-syntax-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "catalog-v2-3",
+      "kind": "symlink-guard",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "catalog-v2-4",
       "kind": "exact-byte-recheck",
       "expected_probe": "CI_PASS"
     },
     {
-      "id": "hardening-2",
+      "id": "catalog-v2-5",
       "kind": "race-guard-recheck",
       "expected_probe": "CI_PASS"
     },
     {
-      "id": "hardening-3",
-      "kind": "continuity-seal",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "hardening-4",
-      "kind": "counter",
+      "id": "catalog-v2-6",
+      "kind": "queue-integrity-recheck",
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "hardening-4",
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "hardening-1",
-      "kind": "exact-byte-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T17:06:56.180438+00:00",
-      "details": {
-        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
-      }
-    },
-    {
-      "index": 1,
-      "task_id": "hardening-2",
-      "kind": "race-guard-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T17:07:15.951522+00:00",
-      "details": {
-        "race_guard": "VERSION=3_RECOVERED"
-      }
-    },
-    {
-      "index": 2,
-      "task_id": "hardening-3",
-      "kind": "continuity-seal",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T17:07:35.348759+00:00",
-      "details": {
-        "probe_safe": true
-      }
-    },
-    {
-      "index": 3,
-      "task_id": "hardening-4",
-      "kind": "counter",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-22T17:07:52.588085+00:00",
-      "details": {
-        "driver_probe": "cycle-4"
-      }
-    }
-  ],
+  "last_completed": null,
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -77,6 +46,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "kick": 3,
-  "kick_reason": "director seeded bounded hardening batch after green gates"
+  "kick": 4,
+  "kick_reason": "validate expanded trusted driver catalog v2"
 }
