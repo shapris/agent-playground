@@ -162,9 +162,9 @@ jobs:
               encoding="utf-8",
           )
 
-          changed = git(scratch, "status", "--porcelain", capture=True)
+          changed = git(scratch, "diff", "--name-only", capture=True)
           changed_paths = [
-              line[3:] for line in changed.splitlines() if line.strip()
+              line.strip() for line in changed.splitlines() if line.strip()
           ]
           if changed_paths != ["autonomy_queue.json"]:
               raise RuntimeError(
