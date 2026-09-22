@@ -11,7 +11,7 @@
   ],
   "status": "PASS",
   "phase": "hardening",
-  "last_verified_local": "2026-09-22T19:22:30+03:00",
+  "last_verified_local": "2026-09-22T19:24:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -51,18 +51,39 @@
     "scheduled_continuity": {
       "result": "PASS",
       "read_state_without_user_copy_paste": true,
-      "verified_prior_ci_runs": [35753385529, 35753392050],
-      "state_update_without_user_copy_paste": true
+      "verified_prior_ci_runs": [
+        35753385529,
+        35753392050
+      ],
+      "state_update_without_user_copy_paste": true,
+      "push_run": 35753726166,
+      "pr_run": 35753731145,
+      "ci_result": "PASS"
     },
     "codex_review": {
       "request_comment_id": 5780033113,
       "request_acknowledged_by_connector": true,
       "status": "PENDING"
+    },
+    "review_auditors": {
+      "qodo": {
+        "pr": 2,
+        "status": "PASS_AS_AUDITOR",
+        "intentional_defects_found": 2,
+        "findings": [
+          "is_even reports odd values as even",
+          "percentage fails documented total==0 behavior"
+        ]
+      },
+      "chatgpt_codex": {
+        "pr1_request_comment_id": 5780033113,
+        "status": "PENDING"
+      }
     }
   },
   "next_actions": [
-    "collect Codex review result without making PR mergeable",
-    "verify CI caused by this continuity-state update and record its result",
+    "wait for ChatGPT Codex review result on isolated review probes without merging",
+    "allow the next scheduled cycle to continue from this SSOT without user copy/paste",
     "continue only isolated scratch hardening"
   ]
 }
