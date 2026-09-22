@@ -1,2 +1,3 @@
 print("DRIVE_TO_GITHUB_CI_OK")
-print("RECOVERY_PASS_PROBE")
+print("DIRECTOR_FAIL_PROBE")
+raise SystemExit(11)
