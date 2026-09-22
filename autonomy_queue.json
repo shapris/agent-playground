@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 4,
+  "index": 5,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,7 +37,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "catalog-v2-4",
+  "last_completed": "catalog-v2-5",
   "evidence": [
     {
       "index": 0,
@@ -88,6 +88,16 @@
       "verified_at_utc": "2026-09-22T18:32:30.494884+00:00",
       "details": {
         "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
+      }
+    },
+    {
+      "index": 4,
+      "task_id": "catalog-v2-5",
+      "kind": "race-guard-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:32:50.630261+00:00",
+      "details": {
+        "race_guard": "VERSION=3_RECOVERED"
       }
     }
   ],
