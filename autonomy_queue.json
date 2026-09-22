@@ -2,16 +2,15 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "ready",
+  "status": "active",
   "index": 0,
-  "max_cycles": 6,
+  "max_cycles": 1,
   "tasks": [
-    {"id": "v4-1", "kind": "critical-hash-snapshot", "expected_probe": "CI_PASS"},
-    {"id": "v4-2", "kind": "symlink-guard", "expected_probe": "CI_PASS"},
-    {"id": "v4-3", "kind": "probe-syntax-recheck", "expected_probe": "CI_PASS"},
-    {"id": "v4-4", "kind": "probe-capability-recheck", "expected_probe": "CI_PASS"},
-    {"id": "v4-5", "kind": "state-schema-recheck", "expected_probe": "CI_PASS"},
-    {"id": "v4-6", "kind": "queue-integrity-recheck", "expected_probe": "CI_PASS"}
+    {
+      "id": "codex-relay-1",
+      "kind": "probe-syntax-recheck",
+      "expected_probe": "CI_PASS"
+    }
   ],
   "last_completed": null,
   "evidence": [],
@@ -22,6 +21,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "kick": 6,
-  "kick_reason": "autonomy hardening batch v4: integrity and capability chain"
+  "gate": "WAIT_FOR_CODEX_REVIEW_RELAY",
+  "note": "Do not kick directly; this queue is intentionally waiting for Codex review event relay."
 }
