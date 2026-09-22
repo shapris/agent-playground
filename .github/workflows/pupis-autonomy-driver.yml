@@ -18,6 +18,7 @@ on:
     - cron: "7,17,27,37,47,57 * * * *"
 
 concurrency:
+  # Preserve bounded cycles when multiple workflow_run/dispatch events overlap.
   group: pupis-bounded-autonomy-driver
   queue: max
   cancel-in-progress: false
