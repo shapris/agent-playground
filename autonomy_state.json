@@ -8,15 +8,8 @@
   "canonical_projects_locked": ["PUPIS_EVO", "JARVIS_FRESH"],
   "status": "PASS_WITH_UI_WAKE_BLOCKER",
   "phase": "background-director-plus-event-driven-worker",
-  "last_verified_local": "2026-09-22T21:39:44+03:00",
-  "invariants": [
-    "never merge PR #1",
-    "never touch canonical PUPIS_EVO without explicit owner authorization",
-    "never touch JARVIS_FRESH",
-    "fetch current blob SHA before every update",
-    "on 409 CONFLICT refetch and reconcile before retry",
-    "require CI/log evidence before claiming PASS"
-  ],
+  "last_verified_local": "2026-09-22T21:56:04+03:00",
+  "invariants": ["never merge PR #1", "never touch canonical PUPIS_EVO without explicit owner authorization", "never touch JARVIS_FRESH", "fetch current blob SHA before every update", "on 409 CONFLICT refetch and reconcile before retry", "require CI/log evidence before claiming PASS"],
   "evidence": {
     "repeatability_run": 35749102629,
     "deliberate_fail": {"commit":"7ca53d0d28dbff8b94927fc8a31f256ac0a70ac8","run":35752937926,"result":"FAIL","marker":"DELIBERATE_FAIL_PROBE","exit_code":7},
@@ -31,16 +24,10 @@
     "bounded_autonomy_driver": {"status":"COMPLETE","completed_cycles":6,"max_cycles":6,"hard_max_cycles":6,"last_task":"catalog-v2-6","last_verified_utc":"2026-09-22T18:33:09.543897+00:00"},
     "driver_hard_cap": {"result":"PASS","hard_max_cycles":6,"validation_mode":"explicit_runtime_validation","assert_dependency":false,"regression_run":35759057026,"regression_tests":"4/4 PASS including python -O over-limit rejection","merged_main":"7fdbfde62f7cd8f2d4031e2ac221be93959684c7"},
     "inactive_cloud_agent_profile": {"result":"PREPARED_NOT_INVOKED","merged_main":"4c3a980c98b0edad3cbf5b4c21bcd1c60b3240c8","path":".github/agents/pupis-autonomy.agent.md","automatic_model_invocation":false,"tools":["read","edit","search"],"ai_credit_policy":"DO_NOT_INVOKE_WITHOUT_EXPLICIT_OWNER_AUTHORIZATION"},
-    "schedule_reactivation": {"result":"BLOCKED_OR_DELAYED","merged_main":"c2d807c0b3522a473fd6494db965e369c1625607","watchdog_cron":"3,13,23,33,43,53 * * * *","driver_cron":"7,17,27,37,47,57 * * * *","observation_at_local":"2026-09-22T21:39:44+03:00","scheduled_runs_total":0,"exact_observation":"GitHub Actions repository runs filtered by event=schedule returned total_count=0 after multiple cron opportunities. No scheduled run ID/job/log exists to validate. Event-driven worker path remains unchanged."},
-    "schedule_fallback": {"result":"BLOCKED_OR_DELAYED","checked_at_local":"2026-09-22T21:39:44+03:00","event_schedule_total_count":0,"driver_scheduled_run":null,"watchdog_scheduled_run":null,"event_driven_path":"UNCHANGED"},
+    "schedule_reactivation": {"result":"BLOCKED_NO_SCHEDULE_EVENT","merged_main":"c2d807c0b3522a473fd6494db965e369c1625607","watchdog_cron":"3,13,23,33,43,53 * * * *","driver_cron":"7,17,27,37,47,57 * * * *","observation_at_local":"2026-09-22T21:39:44+03:00","scheduled_runs_total":0,"reactivator_checked_at_utc":"2026-09-22T18:51:43Z","workflow_state_before_enable":"active","workflow_state_after_enable":"active","post_reactivation_checked_at_local":"2026-09-22T21:56:04+03:00","post_reactivation_scheduled_runs_total":0,"exact_observation":"After the bounded API enable experiment, GitHub Actions event=schedule still returned total_count=0. Both trusted workflows were already state=active before enable and remained active after enable."},
+    "schedule_fallback": {"result":"BLOCKED_NO_SCHEDULE_EVENT","checked_at_local":"2026-09-22T21:56:04+03:00","required_after_utc":"2026-09-22T18:51:43Z","event_schedule_total_count":0,"driver_scheduled_run":null,"watchdog_scheduled_run":null,"workflow_state_before_enable":"active","workflow_state_after_enable":"active","event_driven_path":"UNCHANGED"},
     "parent_wake_transport": {"result":"BLOCKED","root_test":"404 Action not found","automation_child_test":"404 Action not found","proof_file":"parent_wake_transport_probe.json","implication":"main chat cannot currently be auto-woken by notify_parent in this session"},
     "driver_catalog_v2": {"result":"PASS","merge":"80ae14658528ed1328b60f2c93196cf889f04869","task_kinds_added":["queue-integrity-recheck","critical-hash-snapshot","symlink-guard","probe-syntax-recheck"],"batch_result":"6/6 PASS","final_queue_status":"complete","max_cycles":6,"final_tasks":["critical-hash-snapshot","probe-syntax-recheck","symlink-guard","exact-byte-recheck","race-guard-recheck","queue-integrity-recheck"]}
   },
-  "next_actions": [
-    "continue architecture work in the hourly background Director instead of relying on broken notify_parent",
-    "use the event-driven GitHub worker for fast bounded multi-step bursts between Director runs",
-    "keep expanding the trusted deterministic task catalog and failure recovery paths",
-    "treat schedule fallback as BLOCKED_OR_DELAYED until GitHub emits a real event=schedule run",
-    "never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"
-  ]
+  "next_actions": ["continue architecture work in the hourly background Director instead of relying on broken notify_parent", "use the event-driven GitHub worker for fast bounded multi-step bursts between Director runs", "keep expanding the trusted deterministic task catalog and failure recovery paths", "treat schedule fallback as BLOCKED_OR_DELAYED until GitHub emits a real event=schedule run", "never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"]
 }
