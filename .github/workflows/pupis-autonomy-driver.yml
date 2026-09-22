@@ -51,6 +51,8 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 3
+    outputs:
+      advance: ${{ steps.gate.outputs.advance }}
     steps:
       - name: Checkout isolated scratch branch read-only
         uses: actions/checkout@v4
@@ -79,10 +81,39 @@ jobs:
           assert Path("race_guard_probe.txt").read_text(encoding="utf-8") == "VERSION=3_RECOVERED\n"
           print("DRIVER_PROBE_PASS")
 
+      - name: Enforce optional external gate
+        id: gate
+        shell: python
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          queue = json.loads(Path("autonomy_queue.json").read_text(encoding="utf-8"))
+          gate = queue.get("gate")
+          event = os.environ["EVENT_NAME"]
+
+          if gate is None:
+              allowed = True
+              reason = "no_gate"
+          elif gate == "WAIT_FOR_CODEX_REVIEW_RELAY":
+              allowed = event == "workflow_dispatch"
+              reason = "codex_review_relay"
+          else:
+              allowed = False
+              reason = f"unknown_gate:{gate}"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"advance={'true' if allowed else 'false'}\n")
+
+          print(f"DRIVER_EXTERNAL_GATE allowed={allowed} reason={reason} event={event}")
+
   advance:
     needs:
       - probe
-    if: needs.probe.result == 'success'
+    if: needs.probe.result == 'success' && needs.probe.outputs.advance == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
