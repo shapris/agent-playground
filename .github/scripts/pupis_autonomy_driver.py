@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import ast
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -14,6 +15,10 @@ ALLOWED_TASK_KINDS = {
     "exact-byte-recheck",
     "race-guard-recheck",
     "continuity-seal",
+    "queue-integrity-recheck",
+    "critical-hash-snapshot",
+    "symlink-guard",
+    "probe-syntax-recheck",
 }
 
 
@@ -124,6 +129,53 @@ def main():
         require("DRIVE_TO_GITHUB_CI_OK" in probe, "continuity marker missing")
         require("SystemExit" not in probe, "unsafe SystemExit remains in probe")
         details["probe_safe"] = True
+
+    elif kind == "queue-integrity-recheck":
+        evidence = queue.get("evidence", [])
+        require(isinstance(evidence, list), "queue evidence must be a list")
+        require(len(evidence) == index, f"queue evidence length mismatch: {len(evidence)} != {index}")
+        seen = []
+        for position, record in enumerate(evidence):
+            require(isinstance(record, dict), "queue evidence record must be an object")
+            require(record.get("index") == position, f"queue evidence index mismatch at {position}")
+            require(record.get("task_id") == tasks[position].get("id"), f"queue evidence task mismatch at {position}")
+            require(record.get("result") == "PASS", f"queue evidence result mismatch at {position}")
+            seen.append(record.get("task_id"))
+        require(len(seen) == len(set(seen)), "queue evidence task ids must be unique")
+        details["verified_records"] = len(evidence)
+
+    elif kind == "critical-hash-snapshot":
+        critical = [
+            "chat_mode_ci_probe.py",
+            "exact_bytes_probe.py",
+            "race_guard_probe.txt",
+            "autonomy_queue.json",
+        ]
+        hashes = {}
+        for name in critical:
+            path = root / name
+            require(path.exists(), f"critical file missing: {name}")
+            require(path.is_file(), f"critical path is not a file: {name}")
+            hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+        details["sha256"] = hashes
+
+    elif kind == "symlink-guard":
+        critical = [
+            "chat_mode_ci_probe.py",
+            "exact_bytes_probe.py",
+            "race_guard_probe.txt",
+            "autonomy_queue.json",
+            "autonomy_state.json",
+        ]
+        bad = [name for name in critical if (root / name).is_symlink()]
+        require(not bad, f"critical symlinks are forbidden: {bad}")
+        details["checked"] = critical
+
+    elif kind == "probe-syntax-recheck":
+        probe_path = root / "chat_mode_ci_probe.py"
+        source = probe_path.read_text(encoding="utf-8")
+        ast.parse(source, filename=str(probe_path))
+        details["syntax"] = "PASS"
 
     else:
         raise ValidationError(f"unsupported bounded task kind: {kind}")
