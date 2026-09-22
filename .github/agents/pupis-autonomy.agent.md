@@ -2,6 +2,8 @@
 name: PUPIS Autonomy
 description: Scratch-only autonomy hardening specialist for the PUPIS EVO architect-plus-worker laboratory. Never touches canonical PUPIS_EVO or JARVIS_FRESH.
 target: github-copilot
+disable-model-invocation: true
+user-invocable: true
 tools:
   - read
   - edit
