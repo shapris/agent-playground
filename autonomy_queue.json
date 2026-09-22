@@ -35,5 +35,7 @@
     "never touch canonical PUPIS_EVO",
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
-  ]
+  ],
+  "kick": 1,
+  "kick_reason": "start bounded 4-cycle autonomy chain after driver merge"
 }
