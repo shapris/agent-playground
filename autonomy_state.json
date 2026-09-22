@@ -11,7 +11,7 @@
   ],
   "status": "PASS",
   "phase": "hardening",
-  "last_verified_local": "2026-09-22T19:22:00+03:00",
+  "last_verified_local": "2026-09-22T19:22:30+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -43,17 +43,26 @@
       "stale_update_result": "409_CONFLICT",
       "recovered_commit": "0c82649dbc3abe1a049cbfafbbefa865f3fb4278",
       "push_run": 35753385529,
+      "push_result": "PASS",
       "pr_run": 35753392050,
+      "pr_result": "PASS",
       "final_content": "VERSION=3_RECOVERED"
+    },
+    "scheduled_continuity": {
+      "result": "PASS",
+      "read_state_without_user_copy_paste": true,
+      "verified_prior_ci_runs": [35753385529, 35753392050],
+      "state_update_without_user_copy_paste": true
     },
     "codex_review": {
       "request_comment_id": 5780033113,
+      "request_acknowledged_by_connector": true,
       "status": "PENDING"
     }
   },
   "next_actions": [
     "collect Codex review result without making PR mergeable",
-    "verify a scheduled automation cycle reads and updates this state without user copy/paste",
+    "verify CI caused by this continuity-state update and record its result",
     "continue only isolated scratch hardening"
   ]
 }
