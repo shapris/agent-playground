@@ -17,12 +17,24 @@ ALLOWED_TASK_KINDS = {
 }
 
 
+class ValidationError(RuntimeError):
+    pass
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValidationError(message)
+
+
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def write_json(path: Path, value):
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(value, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
 
 
 def main():
@@ -37,29 +49,46 @@ def main():
     queue = load_json(queue_path)
     state = load_json(state_path)
 
-    assert queue["schema"] == 1
-    assert queue["scope"] == "scratch-only"
-    assert queue["branch"] == SCRATCH_BRANCH
-    assert state["scope"] == "scratch-only"
-    assert state["branch"] == SCRATCH_BRANCH
-    assert set(state["canonical_projects_locked"]) == CANONICAL_LOCKS
+    require(queue.get("schema") == 1, "queue schema must be 1")
+    require(queue.get("scope") == "scratch-only", "queue scope must be scratch-only")
+    require(queue.get("branch") == SCRATCH_BRANCH, "queue branch mismatch")
+    require(state.get("scope") == "scratch-only", "state scope must be scratch-only")
+    require(state.get("branch") == SCRATCH_BRANCH, "state branch mismatch")
+    require(
+        set(state.get("canonical_projects_locked", [])) == CANONICAL_LOCKS,
+        "canonical project locks mismatch",
+    )
 
-    if queue.get("status") != "active":
-        print(f"DRIVER_NOOP status={queue.get('status')}")
+    queue_status = queue.get("status")
+    require(queue_status in {"active", "complete"}, f"invalid queue status: {queue_status!r}")
+    if queue_status != "active":
+        print(f"DRIVER_NOOP status={queue_status}")
         return
 
-    index = int(queue.get("index", 0))
-    tasks = queue["tasks"]
-    max_cycles = int(queue["max_cycles"])
+    try:
+        index = int(queue.get("index", 0))
+        max_cycles = int(queue["max_cycles"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValidationError("queue index/max_cycles must be valid integers") from exc
 
-    assert 1 <= max_cycles <= HARD_MAX_CYCLES, max_cycles
-    assert 1 <= len(tasks) <= HARD_MAX_CYCLES, len(tasks)
-    assert 0 <= index <= max_cycles, index
-    task_ids = [task["id"] for task in tasks]
-    assert len(task_ids) == len(set(task_ids)), task_ids
+    tasks = queue.get("tasks")
+    require(isinstance(tasks, list), "queue tasks must be a list")
+    require(1 <= max_cycles <= HARD_MAX_CYCLES, f"max_cycles outside hard bounds: {max_cycles}")
+    require(1 <= len(tasks) <= HARD_MAX_CYCLES, f"task count outside hard bounds: {len(tasks)}")
+    require(0 <= index <= max_cycles, f"queue index outside bounds: {index}")
+    require(index <= len(tasks), f"queue index exceeds task count: {index}>{len(tasks)}")
+
+    task_ids = []
     for task in tasks:
-        assert task["kind"] in ALLOWED_TASK_KINDS, task["kind"]
-        assert task.get("expected_probe") == "CI_PASS", task
+        require(isinstance(task, dict), "every queue task must be an object")
+        task_id = task.get("id")
+        kind = task.get("kind")
+        require(isinstance(task_id, str) and bool(task_id), "task id must be a non-empty string")
+        require(kind in ALLOWED_TASK_KINDS, f"unsupported task kind: {kind!r}")
+        require(task.get("expected_probe") == "CI_PASS", f"task {task_id} lacks CI_PASS gate")
+        task_ids.append(task_id)
+
+    require(len(task_ids) == len(set(task_ids)), "task ids must be unique")
 
     if index >= len(tasks) or index >= max_cycles:
         queue["status"] = "complete"
@@ -82,22 +111,22 @@ def main():
     elif kind == "exact-byte-recheck":
         expected = state["evidence"]["exact_bytes"]["sha256"]
         actual = hashlib.sha256((root / "exact_bytes_probe.py").read_bytes()).hexdigest()
-        assert actual == expected, (actual, expected)
+        require(actual == expected, f"exact-byte SHA mismatch: {actual} != {expected}")
         details["sha256"] = actual
 
     elif kind == "race-guard-recheck":
         actual = (root / "race_guard_probe.txt").read_text(encoding="utf-8")
-        assert actual == "VERSION=3_RECOVERED\n"
+        require(actual == "VERSION=3_RECOVERED\n", f"race guard mismatch: {actual!r}")
         details["race_guard"] = actual.strip()
 
     elif kind == "continuity-seal":
         probe = (root / "chat_mode_ci_probe.py").read_text(encoding="utf-8")
-        assert 'DRIVE_TO_GITHUB_CI_OK' in probe
-        assert 'SystemExit' not in probe
+        require("DRIVE_TO_GITHUB_CI_OK" in probe, "continuity marker missing")
+        require("SystemExit" not in probe, "unsafe SystemExit remains in probe")
         details["probe_safe"] = True
 
     else:
-        raise RuntimeError(f"Unsupported bounded task kind: {kind}")
+        raise ValidationError(f"unsupported bounded task kind: {kind}")
 
     now = datetime.now(timezone.utc).isoformat()
     record = {
@@ -118,6 +147,7 @@ def main():
         "status": "COMPLETE" if queue["status"] == "complete" else "RUNNING",
         "completed_cycles": queue["index"],
         "max_cycles": max_cycles,
+        "hard_max_cycles": HARD_MAX_CYCLES,
         "last_task": task_id,
         "last_verified_utc": now,
     }
