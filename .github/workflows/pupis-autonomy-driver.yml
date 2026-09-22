@@ -14,6 +14,11 @@ on:
     types:
       - completed
   workflow_dispatch:
+    inputs:
+      release_token:
+        description: "Optional external gate release token"
+        required: false
+        type: string
   schedule:
     - cron: "7,17,27,37,47,57 * * * *"
 
@@ -86,6 +91,7 @@ jobs:
         shell: python
         env:
           EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TOKEN: ${{ github.event.inputs.release_token }}
         run: |
           import json
           import os
@@ -99,8 +105,14 @@ jobs:
               allowed = True
               reason = "no_gate"
           elif gate == "WAIT_FOR_CODEX_REVIEW_RELAY":
-              allowed = event == "workflow_dispatch"
-              reason = "codex_review_relay"
+              expected = queue.get("gate_release_token") or ""
+              supplied = os.environ.get("RELEASE_TOKEN") or ""
+              allowed = (
+                  event == "workflow_dispatch"
+                  and bool(expected)
+                  and supplied == expected
+              )
+              reason = "codex_review_relay_token"
           else:
               allowed = False
               reason = f"unknown_gate:{gate}"
