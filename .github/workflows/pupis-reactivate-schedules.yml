@@ -1,6 +1,11 @@
 name: PUPIS Reactivate Scratch Schedules
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-reactivate-schedules.yml
   push:
     branches:
       - main
@@ -10,10 +15,24 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate reactivator scope
+        run: |
+          test "${{ github.event_name }}" = "pull_request"
+          echo "REACTIVATOR_PR_VALIDATION_PASS"
+
   enable:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
