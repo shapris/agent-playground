@@ -10,8 +10,8 @@
     "JARVIS_FRESH"
   ],
   "status": "PASS",
-  "phase": "hardening",
-  "last_verified_local": "2026-09-22T19:24:00+03:00",
+  "phase": "event-driven-watchdog-hardening",
+  "last_verified_local": "2026-09-22T19:35:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -79,11 +79,30 @@
         "pr1_request_comment_id": 5780033113,
         "status": "PENDING"
       }
+    },
+    "watchdog_pr": {
+      "pr": 3,
+      "branch": "pupis-autonomy-watchdog-20260922",
+      "commit": "234a406ece3da96d0e6ac589d58f72fbb460e284",
+      "pull_request_run": 35754997988,
+      "result": "PASS",
+      "cadence_after_merge": "every_15_minutes",
+      "permissions": "contents_read_only",
+      "checks": [
+        "scratch probe execution",
+        "autonomy SSOT safety invariants",
+        "exact-byte SHA-256",
+        "stale-head recovery final state"
+      ],
+      "codex_review_request_comment_id": 5780233374,
+      "codex_review_status": "PENDING",
+      "qodo_status": "IN_PROGRESS"
     }
   },
   "next_actions": [
-    "wait for ChatGPT Codex review result on isolated review probes without merging",
-    "allow the next scheduled cycle to continue from this SSOT without user copy/paste",
-    "continue only isolated scratch hardening"
+    "wait for independent review of watchdog PR #3",
+    "if watchdog review is clean, merge PR #3 in scratch repository only and verify first main/default-branch watchdog run",
+    "verify scheduled watchdog begins running without user messages",
+    "continue isolated event-driven autonomy hardening"
   ]
 }
