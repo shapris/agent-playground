@@ -1,0 +1,141 @@
+name: PUPIS Codex Review Relay
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-codex-review-relay.yml
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CODEX_REVIEW_RELAY_VALID"
+
+  relay:
+    if: github.event_name == 'pull_request_review' && github.actor == 'chatgpt-codex-connector[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+      statuses: write
+    steps:
+      - name: Checkout scratch state read-only
+        uses: actions/checkout@v4
+        with:
+          ref: chat-mode-ci-probe-20260922
+          persist-credentials: false
+          path: scratch
+
+      - name: Decide whether bounded worker should wake
+        id: gate
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          queue = json.loads(
+              Path("scratch/autonomy_queue.json").read_text(encoding="utf-8")
+          )
+          active = (
+              queue.get("scope") == "scratch-only"
+              and queue.get("branch") == "chat-mode-ci-probe-20260922"
+              and queue.get("status") == "active"
+              and int(queue.get("index", 0)) < int(queue.get("max_cycles", 0))
+              and int(queue.get("max_cycles", 0)) <= 6
+          )
+          with open(__import__("os").environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"dispatch={'true' if active else 'false'}\n")
+          print(f"CODEX_REVIEW_GATE active={active}")
+
+      - name: Dispatch bounded worker after Codex review
+        if: steps.gate.outputs.dispatch == 'true'
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          token = os.environ["GH_TOKEN"]
+          url = (
+              f"https://api.github.com/repos/{repo}/actions/workflows/"
+              "pupis-autonomy-driver.yml/dispatches"
+          )
+          req = urllib.request.Request(
+              url,
+              data=json.dumps({"ref": "main"}).encode("utf-8"),
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  if response.status != 204:
+                      raise RuntimeError(f"Unexpected dispatch HTTP {response.status}")
+                  print("CODEX_REVIEW_RELAY_DISPATCH_PASS")
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise RuntimeError(
+                  f"Codex review relay dispatch failed HTTP {exc.code}: {detail}"
+              ) from exc
+
+      - name: Publish relay status on reviewed commit
+        if: always()
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REVIEWED_SHA: ${{ github.event.pull_request.head.sha }}
+          DISPATCH: ${{ steps.gate.outputs.dispatch }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          sha = os.environ["REVIEWED_SHA"]
+          dispatched = os.environ.get("DISPATCH") == "true"
+          token = os.environ["GH_TOKEN"]
+          run_id = os.environ["RUN_ID"]
+
+          payload = {
+              "state": "success",
+              "context": "PUPIS Codex review relay",
+              "description": (
+                  "Codex review woke bounded worker"
+                  if dispatched
+                  else "Codex review observed; no active bounded queue"
+              ),
+              "target_url": f"https://github.com/{repo}/actions/runs/{run_id}",
+          }
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/statuses/{sha}",
+              data=json.dumps(payload).encode("utf-8"),
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json",
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              print(f"CODEX_REVIEW_RELAY_STATUS http={response.status}")
