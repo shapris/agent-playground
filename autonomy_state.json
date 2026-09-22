@@ -103,6 +103,13 @@
       "requested_at_local": "2026-09-22T19:42:00+03:00",
       "purpose": "prove workflow_run wakes watchdog immediately after scratch CI completion",
       "status": "PENDING"
+    },
+    "bounded_autonomy_driver": {
+      "status": "RUNNING",
+      "completed_cycles": 1,
+      "max_cycles": 4,
+      "last_task": "cycle-1",
+      "last_verified_utc": "2026-09-22T16:59:57.353120+00:00"
     }
   },
   "next_actions": [

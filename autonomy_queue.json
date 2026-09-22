@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,8 +27,19 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": null,
-  "evidence": [],
+  "last_completed": "cycle-1",
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "cycle-1",
+      "kind": "counter",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T16:59:57.353120+00:00",
+      "details": {
+        "driver_probe": "cycle-1"
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
