@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 1,
+  "index": 2,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,7 +37,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "catalog-v2-1",
+  "last_completed": "catalog-v2-2",
   "evidence": [
     {
       "index": 0,
@@ -52,6 +52,16 @@
           "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
           "autonomy_queue.json": "33cb2c229076e0b6d30a81b983495ac975871e700e0c4fc4eee1df98164ce493"
         }
+      }
+    },
+    {
+      "index": 1,
+      "task_id": "catalog-v2-2",
+      "kind": "probe-syntax-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:31:56.185688+00:00",
+      "details": {
+        "syntax": "PASS"
       }
     }
   ],
