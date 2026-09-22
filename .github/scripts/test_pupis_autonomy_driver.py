@@ -18,9 +18,13 @@ def write_json(path: Path, value) -> None:
 
 def base_state():
     return {
+        "schema": 1,
         "scope": "scratch-only",
+        "repository": "shapris/agent-playground",
         "branch": "chat-mode-ci-probe-20260922",
+        "pull_request": 1,
         "canonical_projects_locked": ["PUPIS_EVO", "JARVIS_FRESH"],
+        "invariants": [],
         "evidence": {
             "exact_bytes": {
                 "sha256": "unused-for-counter-test",
@@ -235,6 +239,106 @@ class DriverSafetyTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("SyntaxError", result.stderr + result.stdout)
 
+
+
+    def test_state_schema_recheck_rejects_wrong_schema(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "schema", "kind": "state-schema-recheck", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+            "safety": [],
+        }
+        temp, root, result = run_driver(queue)
+        self.addCleanup(temp.cleanup)
+        state = base_state()
+        state["schema"] = 999
+        write_json(root / "autonomy_state.json", state)
+        result = subprocess.run(
+            [sys.executable, str(DRIVER), "--worktree", str(root)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("state schema must be 1", result.stderr + result.stdout)
+
+    def test_critical_size_bounds_rejects_empty_file(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "sizes", "kind": "critical-size-bounds", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+            "safety": [],
+        }
+        extra = {
+            "chat_mode_ci_probe.py": b"",
+            "exact_bytes_probe.py": b"\xef\xbb\xbfX\r\n",
+            "race_guard_probe.txt": "VERSION=3_RECOVERED\n",
+        }
+        temp, root, result = run_driver(queue, extra_files=extra)
+        self.addCleanup(temp.cleanup)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("critical file size out of bounds", result.stderr + result.stdout)
+
+    def test_encoding_profile_recheck_accepts_expected_profiles(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "encoding", "kind": "encoding-profile-recheck", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+            "safety": [],
+        }
+        extra = {
+            "chat_mode_ci_probe.py": b'print("OK")\n',
+            "exact_bytes_probe.py": b"\xef\xbb\xbfVALUE=1\r\nTAIL=2\r\n",
+            "race_guard_probe.txt": "VERSION=3_RECOVERED\n",
+        }
+        temp, root, result = run_driver(queue, extra_files=extra)
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+    def test_probe_capability_recheck_rejects_import(self):
+        queue = {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": "chat-mode-ci-probe-20260922",
+            "status": "active",
+            "index": 0,
+            "max_cycles": 1,
+            "tasks": [
+                {"id": "cap", "kind": "probe-capability-recheck", "expected_probe": "CI_PASS"}
+            ],
+            "evidence": [],
+            "safety": [],
+        }
+        extra = {
+            "chat_mode_ci_probe.py": "import os\nprint('OK')\n",
+            "exact_bytes_probe.py": b"\xef\xbb\xbfX\r\n",
+            "race_guard_probe.txt": "VERSION=3_RECOVERED\n",
+        }
+        temp, root, result = run_driver(queue, extra_files=extra)
+        self.addCleanup(temp.cleanup)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("permits only expression statements", result.stderr + result.stdout)
 
     def test_legal_counter_task_completes_once(self):
         queue = {
