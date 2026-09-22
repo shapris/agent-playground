@@ -3,3 +3,5 @@ def below_ceiling(value: int, ceiling: int) -> bool:
     return value <= ceiling
 
 # correlated-proof-generation: 2
+
+# correlated-proof-generation: 3
