@@ -117,7 +117,12 @@ jobs:
           )
           req = urllib.request.Request(
               url,
-              data=json.dumps({"ref": "main"}).encode("utf-8"),
+              data=json.dumps({
+                  "ref": "main",
+                  "inputs": {
+                      "release_token": os.environ["RELEASE_TOKEN"],
+                  },
+              }).encode("utf-8"),
               method="POST",
               headers={
                   "Authorization": f"Bearer {token}",
