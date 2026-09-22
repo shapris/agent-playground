@@ -108,10 +108,10 @@
     },
     "bounded_autonomy_driver": {
       "status": "RUNNING",
-      "completed_cycles": 1,
+      "completed_cycles": 2,
       "max_cycles": 4,
-      "last_task": "hardening-1",
-      "last_verified_utc": "2026-09-22T17:06:56.180438+00:00"
+      "last_task": "hardening-2",
+      "last_verified_utc": "2026-09-22T17:07:15.951522+00:00"
     }
   },
   "next_actions": [
