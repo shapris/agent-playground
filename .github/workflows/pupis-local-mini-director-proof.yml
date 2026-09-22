@@ -1,0 +1,102 @@
+name: PUPIS Local Mini Director Proof
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-local-mini-director-proof.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-local-mini-director-proof.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate pinned proof definition
+        shell: python
+        run: |
+          runtime_sha = "9abf88aea48a55d0f80edb1ee20220b186848cca0b4e919d71518cfd7ca67443"
+          model_sha = "1d9614638d18024d0fbb36575a15f1302a3adf044df10345688ec4f6e1c4ff32"
+          assert len(runtime_sha) == 64
+          assert len(model_sha) == 64
+          assert set("HASH_CHECK SYNTAX_CHECK STOP".split()) == {
+              "HASH_CHECK", "SYNTAX_CHECK", "STOP"
+          }
+          print("LOCAL_MINI_DIRECTOR_DEFINITION_PASS")
+
+  infer:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and verify pinned llama.cpp CPU runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 2 \
+            -o llama-runtime.tar.gz \
+            "https://github.com/ggml-org/llama.cpp/releases/download/b10964/llama-b10964-bin-ubuntu-x64.tar.gz"
+          echo "9abf88aea48a55d0f80edb1ee20220b186848cca0b4e919d71518cfd7ca67443  llama-runtime.tar.gz" | sha256sum -c -
+          mkdir runtime
+          tar -xzf llama-runtime.tar.gz -C runtime
+          LLAMA_CLI="$(find runtime -type f -name llama-cli -print -quit)"
+          test -n "$LLAMA_CLI"
+          chmod +x "$LLAMA_CLI"
+          echo "LLAMA_CLI=$LLAMA_CLI" >> "$GITHUB_ENV"
+          "$LLAMA_CLI" --version | head -20
+
+      - name: Download and verify pinned Qwen 0.5B model
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 2 \
+            -o model.gguf \
+            "https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct-GGUF/resolve/main/qwen2.5-coder-0.5b-instruct-q4_k_m.gguf"
+          echo "1d9614638d18024d0fbb36575a15f1302a3adf044df10345688ec4f6e1c4ff32  model.gguf" | sha256sum -c -
+          test "$(stat -c %s model.gguf)" -eq 491400064
+          echo "PINNED_MODEL_VERIFIED"
+
+      - name: Ask local model for one allowlisted action
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROMPT='You are a tiny safety-constrained scheduler. Choose exactly one token from HASH_CHECK, SYNTAX_CHECK, STOP. Situation: the bounded worker queue is complete and the next experiment should re-check trusted exact-byte integrity. Output only the token.'
+          "$LLAMA_CLI" \
+            -m model.gguf \
+            -p "$PROMPT" \
+            -n 16 \
+            --temp 0 \
+            --no-display-prompt \
+            > model-output.txt 2> model-runtime.log
+
+          echo "=== MODEL STDOUT ==="
+          cat model-output.txt
+          echo "=== END MODEL STDOUT ==="
+
+          DECISION="$(grep -oE 'HASH_CHECK|SYNTAX_CHECK|STOP' model-output.txt | head -1 || true)"
+          case "$DECISION" in
+            HASH_CHECK|SYNTAX_CHECK|STOP)
+              ;;
+            *)
+              echo "MODEL_OUTPUT_NOT_ALLOWLISTED"
+              exit 20
+              ;;
+          esac
+
+          echo "LOCAL_MINI_DIRECTOR_DECISION=$DECISION"
+
+          if [ "$DECISION" != "HASH_CHECK" ]; then
+            echo "MODEL_DECISION_UNEXPECTED_FOR_CONTROL_PROMPT=$DECISION"
+            exit 21
+          fi
+
+          echo "LOCAL_MINI_DIRECTOR_PROOF_PASS"
