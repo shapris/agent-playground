@@ -10,6 +10,7 @@ from pathlib import Path
 SCRATCH_BRANCH = "chat-mode-ci-probe-20260922"
 CANONICAL_LOCKS = {"PUPIS_EVO", "JARVIS_FRESH"}
 HARD_MAX_CYCLES = 6
+DEFAULT_BASELINE = Path(__file__).resolve().parents[1] / "pupis-autonomy-baseline.json"
 ALLOWED_TASK_KINDS = {
     "counter",
     "exact-byte-recheck",
@@ -49,9 +50,21 @@ def write_json(path: Path, value):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--worktree", required=True)
+    parser.add_argument("--baseline", default=str(DEFAULT_BASELINE))
     args = parser.parse_args()
 
     root = Path(args.worktree).resolve()
+    baseline_path = Path(args.baseline).resolve()
+    baseline = load_json(baseline_path)
+
+    require(baseline.get("schema") == 1, "baseline schema must be 1")
+    require(baseline.get("scope") == "scratch-only", "baseline scope mismatch")
+    require(baseline.get("repository") == "shapris/agent-playground", "baseline repository mismatch")
+    require(baseline.get("branch") == SCRATCH_BRANCH, "baseline branch mismatch")
+    require(
+        set(baseline.get("canonical_projects_locked", [])) == CANONICAL_LOCKS,
+        "baseline canonical locks mismatch",
+    )
     queue_path = root / "autonomy_queue.json"
     state_path = root / "autonomy_state.json"
 
@@ -118,19 +131,20 @@ def main():
         details["driver_probe"] = f"cycle-{index + 1}"
 
     elif kind == "exact-byte-recheck":
-        expected = state["evidence"]["exact_bytes"]["sha256"]
+        expected = baseline["exact_bytes_sha256"]
         actual = hashlib.sha256((root / "exact_bytes_probe.py").read_bytes()).hexdigest()
         require(actual == expected, f"exact-byte SHA mismatch: {actual} != {expected}")
         details["sha256"] = actual
 
     elif kind == "race-guard-recheck":
         actual = (root / "race_guard_probe.txt").read_text(encoding="utf-8")
-        require(actual == "VERSION=3_RECOVERED\n", f"race guard mismatch: {actual!r}")
+        require(actual == baseline["race_guard_text"], f"race guard mismatch: {actual!r}")
         details["race_guard"] = actual.strip()
 
     elif kind == "continuity-seal":
         probe = (root / "chat_mode_ci_probe.py").read_text(encoding="utf-8")
-        require("DRIVE_TO_GITHUB_CI_OK" in probe, "continuity marker missing")
+        for marker in baseline.get("probe_required_markers", []):
+            require(marker in probe, f"continuity marker missing: {marker}")
         require("SystemExit" not in probe, "unsafe SystemExit remains in probe")
         details["probe_safe"] = True
 
@@ -265,8 +279,28 @@ def main():
         "last_verified_utc": now,
     }
 
+    evidence_dir = root / "autonomy_evidence"
+    evidence_dir.mkdir(exist_ok=True)
+    evidence_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    evidence_key = hashlib.sha256(task_id.encode("utf-8")).hexdigest()[:12]
+    evidence_path = evidence_dir / f"{index:02d}-{evidence_key}-{evidence_stamp}.json"
+    require(not evidence_path.exists(), "evidence journal path collision")
+    write_json(
+        evidence_path,
+        {
+            "schema": 1,
+            "scope": "scratch-only",
+            "branch": SCRATCH_BRANCH,
+            "task": record,
+            "queue_index_after": queue["index"],
+            "queue_status_after": queue["status"],
+            "baseline_sha256": hashlib.sha256(baseline_path.read_bytes()).hexdigest(),
+        },
+    )
+
     write_json(queue_path, queue)
     write_json(state_path, state)
+    print(f"EVIDENCE_JOURNAL_APPENDED path={evidence_path.relative_to(root)}")
     print(
         f"DRIVER_ADVANCED task={task_id} index={queue['index']} "
         f"status={queue['status']}"
