@@ -20,7 +20,10 @@ jobs:
       - run: echo "CODEX_REVIEW_RELAY_VALID"
 
   relay:
-    if: github.event_name == 'pull_request_review' && github.actor == 'chatgpt-codex-connector[bot]'
+    if: >-
+      github.event_name == 'pull_request_review' &&
+      github.actor == 'chatgpt-codex-connector[bot]' &&
+      startsWith(github.event.pull_request.head.ref, 'pupis-codex-gate-')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -28,7 +31,27 @@ jobs:
       actions: write
       statuses: write
     steps:
+      - name: Validate explicit relay marker
+        id: scope
+        shell: python
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          import os
+
+          body = os.environ.get("PR_BODY") or ""
+          head = os.environ.get("HEAD_REF") or ""
+          allowed = (
+              head.startswith("pupis-codex-gate-")
+              and "PUPIS_CODEX_RELAY_GATE=ALLOW" in body
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"allowed={'true' if allowed else 'false'}\n")
+          print(f"CODEX_RELAY_SCOPE allowed={allowed} head={head}")
+
       - name: Checkout scratch state read-only
+        if: steps.scope.outputs.allowed == 'true'
         uses: actions/checkout@v4
         with:
           ref: chat-mode-ci-probe-20260922
@@ -36,6 +59,7 @@ jobs:
           path: scratch
 
       - name: Decide whether bounded worker should wake
+        if: steps.scope.outputs.allowed == 'true'
         id: gate
         shell: python
         run: |
@@ -57,7 +81,7 @@ jobs:
           print(f"CODEX_REVIEW_GATE active={active}")
 
       - name: Dispatch bounded worker after Codex review
-        if: steps.gate.outputs.dispatch == 'true'
+        if: steps.scope.outputs.allowed == 'true' && steps.gate.outputs.dispatch == 'true'
         shell: python
         env:
           GH_TOKEN: ${{ github.token }}
