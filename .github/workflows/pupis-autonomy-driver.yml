@@ -15,7 +15,7 @@ on:
       - completed
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "7,17,27,37,47,57 * * * *"
 
 concurrency:
   group: pupis-bounded-autonomy-driver
