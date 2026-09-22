@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 2,
+  "index": 3,
   "max_cycles": 6,
   "tasks": [
     {
@@ -37,7 +37,7 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "last_completed": "catalog-v2-2",
+  "last_completed": "catalog-v2-3",
   "evidence": [
     {
       "index": 0,
@@ -62,6 +62,22 @@
       "verified_at_utc": "2026-09-22T18:31:56.185688+00:00",
       "details": {
         "syntax": "PASS"
+      }
+    },
+    {
+      "index": 2,
+      "task_id": "catalog-v2-3",
+      "kind": "symlink-guard",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T18:32:12.892244+00:00",
+      "details": {
+        "checked": [
+          "chat_mode_ci_probe.py",
+          "exact_bytes_probe.py",
+          "race_guard_probe.txt",
+          "autonomy_queue.json",
+          "autonomy_state.json"
+        ]
       }
     }
   ],
