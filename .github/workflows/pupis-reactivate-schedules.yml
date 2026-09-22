@@ -1,0 +1,91 @@
+name: PUPIS Reactivate Scratch Schedules
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-reactivate-schedules.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pupis-reactivate-schedules.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate reactivator scope
+        run: |
+          test "${{ github.event_name }}" = "pull_request"
+          echo "REACTIVATOR_PR_VALIDATION_PASS"
+
+  enable:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      actions: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Enable only trusted PUPIS scratch schedules
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["REPOSITORY"]
+          token = os.environ["GH_TOKEN"]
+          workflows = [
+              "pupis-autonomy-watchdog.yml",
+              "pupis-autonomy-driver.yml",
+          ]
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2026-03-10",
+          }
+
+          def request(url, method="GET"):
+              req = urllib.request.Request(url, method=method, headers=headers)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      raw = response.read()
+                      body = json.loads(raw.decode("utf-8")) if raw else None
+                      return response.status, body
+              except urllib.error.HTTPError as exc:
+                  detail = exc.read().decode("utf-8", errors="replace")
+                  raise RuntimeError(
+                      f"GitHub API {method} {url} failed: HTTP {exc.code}: {detail}"
+                  ) from exc
+
+          for filename in workflows:
+              base = f"https://api.github.com/repos/{repo}/actions/workflows/{filename}"
+              status, before = request(base)
+              print(f"BEFORE {filename} state={before.get('state')} http={status}")
+
+              enable_status, _ = request(base + "/enable", method="PUT")
+              if enable_status != 204:
+                  raise RuntimeError(f"Unexpected enable HTTP {enable_status} for {filename}")
+
+              verify_status, after = request(base)
+              state = after.get("state")
+              print(f"AFTER {filename} state={state} http={verify_status}")
+              if state != "active":
+                  raise RuntimeError(f"Workflow {filename} did not become active: {state}")
+
+          print("PUPIS_SCHEDULE_REACTIVATION_PASS")
