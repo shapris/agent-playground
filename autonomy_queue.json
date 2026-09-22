@@ -3,16 +3,43 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 4,
   "tasks": [
-    {"id":"hardening-1","kind":"exact-byte-recheck","expected_probe":"CI_PASS"},
-    {"id":"hardening-2","kind":"race-guard-recheck","expected_probe":"CI_PASS"},
-    {"id":"hardening-3","kind":"continuity-seal","expected_probe":"CI_PASS"},
-    {"id":"hardening-4","kind":"counter","expected_probe":"CI_PASS"}
+    {
+      "id": "hardening-1",
+      "kind": "exact-byte-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "hardening-2",
+      "kind": "race-guard-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "hardening-3",
+      "kind": "continuity-seal",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "hardening-4",
+      "kind": "counter",
+      "expected_probe": "CI_PASS"
+    }
   ],
-  "last_completed": null,
-  "evidence": [],
+  "last_completed": "hardening-1",
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "hardening-1",
+      "kind": "exact-byte-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-22T17:06:56.180438+00:00",
+      "details": {
+        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",

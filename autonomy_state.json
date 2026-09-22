@@ -107,38 +107,11 @@
       "native_status": "PASS"
     },
     "bounded_autonomy_driver": {
-      "status": "COMPLETE",
-      "completed_cycles": 4,
+      "status": "RUNNING",
+      "completed_cycles": 1,
       "max_cycles": 4,
-      "queue_status": "complete",
-      "final_head": "8bf4e1a5b762eaacc8938bcdef9afe26b4558911",
-      "cycle_evidence": [
-        {
-          "task": "cycle-1",
-          "kind": "counter",
-          "result": "PASS"
-        },
-        {
-          "task": "cycle-2",
-          "kind": "exact-byte-recheck",
-          "result": "PASS",
-          "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
-        },
-        {
-          "task": "cycle-3",
-          "kind": "race-guard-recheck",
-          "result": "PASS",
-          "value": "VERSION=3_RECOVERED"
-        },
-        {
-          "task": "cycle-4",
-          "kind": "continuity-seal",
-          "result": "PASS"
-        }
-      ],
-      "self_dispatch": "PASS",
-      "bounded_stop": "PASS",
-      "manual_intervention_after_final_kick": false
+      "last_task": "hardening-1",
+      "last_verified_utc": "2026-09-22T17:06:56.180438+00:00"
     }
   },
   "next_actions": [
