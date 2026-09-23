@@ -1,5 +1,7 @@
 """Small dependency graph used by the PUPIS generative-coder proof."""
 
+from collections.abc import Collection
+
 
 class TaskGraph:
     def __init__(self, dependencies):
@@ -12,6 +14,9 @@ class TaskGraph:
                 raise ValueError("task identifiers must be non-empty strings")
             if task in self._deps:
                 raise ValueError(f"duplicate task identifier: {task}")
+            if isinstance(deps, (str, bytes)) or not isinstance(deps, Collection):
+                raise ValueError("dependencies for each task must be a non-string collection")
+
             normalized_deps = set()
             for dep in deps:
                 if not isinstance(dep, str) or not dep:
