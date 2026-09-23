@@ -12,7 +12,7 @@
   "objectives": [
     {
       "id": "OBJ-1",
-      "status": "READY",
+      "status": "DONE",
       "objective": "Implement a dependency graph with deterministic ready-task selection and cycle detection.",
       "acceptance_criteria": [
         "ready_tasks(done) returns lexicographically sorted tasks whose dependencies are satisfied",
@@ -28,7 +28,7 @@
     },
     {
       "id": "OBJ-2",
-      "status": "BLOCKED",
+      "status": "READY",
       "objective": "Implement durable mission state with DONE/READY/BLOCKED transitions and JSON round-trip.",
       "allowed_paths": [
         "generative_lab/workspace/mission_state.py",
@@ -49,10 +49,40 @@
       "next_if_fail": "repair same objective from real test log"
     }
   ],
-  "current_objective": "OBJ-1",
-  "attempts": [],
-  "failures": [],
-  "evidence": [],
+  "current_objective": "OBJ-2",
+  "attempts": [
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A1",
+      "proposal_sha256": "1d2e03bb46ebbbeda89c002615f01b7ebcc7edd9cd0842f81702483b5099b869",
+      "result": "FAIL",
+      "evidence": "test_ready_tasks_are_lexicographically_sorted: ['lint', 'fetch'] != ['fetch', 'lint']"
+    },
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A2",
+      "proposal_sha256": "9dd05bd673ae075cfd00b68d2422f242553dc80546f8e1b1ffc03058530c2346",
+      "result": "PASS",
+      "evidence": "3 unittest tests passed"
+    }
+  ],
+  "failures": [
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A1",
+      "fingerprint": "reverse-lexicographic-ready-order",
+      "root_cause": "ready_tasks used reverse=True",
+      "do_not_repeat": true
+    }
+  ],
+  "evidence": [
+    {
+      "objective_id": "OBJ-1",
+      "artifact": "generative_lab/workspace/task_graph.py",
+      "tests": "generative_lab/tests/test_task_graph.py",
+      "result": "PASS"
+    }
+  ],
   "stop_conditions": [
     "3 objectives DONE",
     "attempt budget exhausted",
