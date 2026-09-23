@@ -50,12 +50,12 @@
       "mutable_state_is_not_safety_root": true
     },
     "bounded_autonomy_driver": {
-      "status": "RUNNING",
-      "completed_cycles": 5,
+      "status": "COMPLETE",
+      "completed_cycles": 6,
       "max_cycles": 6,
       "hard_max_cycles": 6,
-      "last_task": "v9-queue-integrity",
-      "last_verified_utc": "2026-09-23T06:04:39.226883+00:00"
+      "last_task": "v9-probe-capability",
+      "last_verified_utc": "2026-09-23T06:04:57.535458+00:00"
     }
   },
   "next_actions": [
