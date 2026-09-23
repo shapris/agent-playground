@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 1,
+    "task_id": "v9-symlink-guard",
+    "kind": "symlink-guard",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T06:03:41.557053+00:00",
+    "details": {
+      "checked": [
+        "chat_mode_ci_probe.py",
+        "exact_bytes_probe.py",
+        "race_guard_probe.txt",
+        "autonomy_queue.json",
+        "autonomy_state.json"
+      ]
+    }
+  },
+  "queue_index_after": 2,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}
