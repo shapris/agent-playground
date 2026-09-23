@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 1,
+  "index": 2,
   "max_cycles": 4,
   "tasks": [
     {
@@ -42,6 +42,22 @@
           "autonomy_queue.json": "2eb2cb7900b53aa873831cadc946f0f53516bef6b9c69fa790a20054b7440953"
         }
       }
+    },
+    {
+      "index": 1,
+      "task_id": "v5-symlink-guard",
+      "kind": "symlink-guard",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T01:04:19.480400+00:00",
+      "details": {
+        "checked": [
+          "chat_mode_ci_probe.py",
+          "exact_bytes_probe.py",
+          "race_guard_probe.txt",
+          "autonomy_queue.json",
+          "autonomy_state.json"
+        ]
+      }
     }
   ],
   "safety": [
@@ -52,5 +68,5 @@
     "stop after max_cycles"
   ],
   "note": "V5 deterministic hardening batch repaired from exact runtime validation: trusted driver requires status=active and expected_probe=CI_PASS per task. No AI/model-credit task kinds; existing trusted catalog only.",
-  "last_completed": "v5-critical-hash-snapshot"
+  "last_completed": "v5-symlink-guard"
 }
