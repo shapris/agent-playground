@@ -2,7 +2,7 @@
   "schema": 1,
   "mission_id": "gen-coder-proof-v1",
   "mission": "Build a small dependency-aware task planner library from a high-level goal, prove generated implementation -> real FAIL -> generated repair -> PASS, then continue to later objectives without owner coordination.",
-  "status": "AWAITING_VERIFIER_RECHECK",
+  "status": "AWAITING_VERIFIER_RECHECK_ROUND_3",
   "budget": {
     "max_objectives": 3,
     "max_attempts_per_objective": 3,
@@ -151,6 +151,20 @@
       "fingerprint": "empty-fingerprint-gate-bypass",
       "root_cause": "may_attempt accepted an empty fingerprint while record_failure rejected it",
       "do_not_repeat": true
+    },
+    {
+      "objective_id": "OBJ-3",
+      "source": "independent_verifier_recheck",
+      "fingerprint": "failure-memory-overwrites-prior-evidence",
+      "root_cause": "record_failure replaced the previous evidence value instead of retaining all failed evidence values for a fingerprint",
+      "do_not_repeat": true
+    },
+    {
+      "objective_id": "OBJ-1",
+      "source": "independent_verifier_recheck",
+      "fingerprint": "string-dependency-collection-splits-characters",
+      "root_cause": "TaskGraph accepted str/bytes as a dependency collection and iterated characters",
+      "do_not_repeat": true
     }
   ],
   "evidence": [
@@ -211,17 +225,30 @@
       "job_id": 107081509691,
       "result": "PASS",
       "tests": "16/16"
+    },
+    {
+      "type": "post_verifier_round2_repair_ci",
+      "run_id": 35831710862,
+      "job_id": 107085602573,
+      "head_sha": "3d1b97c9953fa792f093451390e3db2831893e37",
+      "result": "PASS",
+      "tests": "18/18"
     }
   ],
   "verifier": {
-    "status": "RECHECK_REQUIRED",
+    "status": "RECHECK_REQUIRED_ROUND_3",
     "pr": 38,
     "first_review_id": "PRR_kwDOSy_H_c8AAAABOy8KeA",
     "first_review_findings": 3,
     "repaired_ci_run": 35830430837,
     "repaired_ci_job": 107081509691,
     "repaired_tests": "16/16 PASS",
-    "reason": "Independent verifier found three P2 issues; all were repaired and passed cloud CI. Awaiting review of repaired commit."
+    "reason": "Independent verifier found three P2 issues; all were repaired and passed cloud CI. Awaiting review of repaired commit.",
+    "second_review_id": "PRR_kwDOSy_H_c8AAAABOzAr5w",
+    "second_review_findings": 2,
+    "round2_repair_ci_run": 35831710862,
+    "round2_repair_ci_job": 107085602573,
+    "round2_tests": "18/18 PASS"
   },
   "stop_conditions": [
     "3 objectives DONE",
@@ -231,5 +258,9 @@
   "canonical_projects_locked": [
     "PUPIS_EVO",
     "JARVIS_FRESH"
-  ]
+  ],
+  "verifier_repair_budget": {
+    "max_rounds": 3,
+    "used": 2
+  }
 }
