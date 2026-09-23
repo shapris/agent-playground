@@ -51,11 +51,11 @@
     },
     "bounded_autonomy_driver": {
       "status": "RUNNING",
-      "completed_cycles": 4,
+      "completed_cycles": 5,
       "max_cycles": 6,
       "hard_max_cycles": 6,
-      "last_task": "v8-encoding-profile",
-      "last_verified_utc": "2026-09-23T05:02:36.179232+00:00"
+      "last_task": "v8-probe-capability",
+      "last_verified_utc": "2026-09-23T05:02:56.955950+00:00"
     }
   },
   "next_actions": [
