@@ -13,17 +13,19 @@ class FailureMemory:
 
     def record_failure(self, fingerprint, evidence):
         key = self._validate_fingerprint(fingerprint)
-        self._failures[key] = str(evidence)
+        evidence_value = str(evidence)
+        self._failures.setdefault(key, set()).add(evidence_value)
 
     def may_attempt(self, fingerprint, evidence):
         key = self._validate_fingerprint(fingerprint)
+        evidence_value = str(evidence)
         if key not in self._failures:
             return True
-        return self._failures[key] != str(evidence)
+        return evidence_value not in self._failures[key]
 
     def require_attempt_allowed(self, fingerprint, evidence):
         if not self.may_attempt(fingerprint, evidence):
             raise ValueError(f"failed strategy fingerprint blocked: {fingerprint}")
 
     def snapshot(self):
-        return dict(self._failures)
+        return {key: sorted(values) for key, values in self._failures.items()}
