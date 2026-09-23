@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "contract_name": "PUPIS V2 Architect→Generative Worker",
+  "mission_id": "autonomous-product-builder-v2",
+  "proposal_required": true,
+  "proposal_fields": [
+    "mission_id",
+    "objective_id",
+    "attempt_id",
+    "goal",
+    "context",
+    "acceptance_criteria",
+    "allowed_paths",
+    "forbidden_paths",
+    "existing_files_to_read",
+    "expected_artifacts",
+    "test_profile",
+    "max_files",
+    "max_diff_bytes",
+    "max_iterations",
+    "risk_level",
+    "required_verifier",
+    "failure_budget",
+    "next_if_pass",
+    "next_if_fail",
+    "stop_conditions",
+    "changes"
+  ],
+  "authority_separation": {
+    "model_may": "propose exact file contents only within objective allowed_paths",
+    "model_may_not": [
+      "write outside objective allowed_paths",
+      "change .github or autonomy infrastructure as product code",
+      "use network, subprocess, shell, eval, exec or dynamic imports",
+      "declare PASS without correlated CI evidence",
+      "select DONE without verifier gate when required"
+    ],
+    "trusted_layer_knows_only": [
+      "contract",
+      "allowed paths",
+      "budgets",
+      "safety rules",
+      "proposal hash",
+      "how to apply exact contents",
+      "how to run read-only CI"
+    ],
+    "trusted_layer_must_not_contain": "future solution code"
+  },
+  "correlation_keys": [
+    "mission_id",
+    "objective_id",
+    "attempt_id",
+    "proposal_path",
+    "proposal_hash",
+    "commit_sha",
+    "ci_run_id",
+    "ci_job_id",
+    "verifier_pr",
+    "reviewed_sha",
+    "review_id"
+  ],
+  "repair_protocol": [
+    "fetch exact failing CI job and log",
+    "derive stable failure fingerprint",
+    "check mission failure memory",
+    "form new hypothesis",
+    "create new minimal repair proposal",
+    "apply only allowed paths",
+    "require new correlated CI run",
+    "never repeat identical failed strategy without new evidence"
+  ],
+  "done_gate": {
+    "objective_done_requires": [
+      "artifact exists",
+      "acceptance tests exist",
+      "correlated CI success on exact commit",
+      "evidence persisted in mission SSOT"
+    ],
+    "mission_proven_requires": [
+      "all objectives DONE",
+      "restartability evidence",
+      "independent verifier clean on exact final head",
+      "no unexplained FAIL"
+    ]
+  }
+}
