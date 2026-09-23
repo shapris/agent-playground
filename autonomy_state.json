@@ -9,8 +9,8 @@
     "PUPIS_EVO",
     "JARVIS_FRESH"
   ],
-  "status": "PASS_GENERATIVE_CODER_AWAITING_VERIFIER_RECHECK",
-  "phase": "generative-coder-independent-repair-loop",
+  "status": "PASS_GENERATIVE_CODER_ROUND3_VERIFIER_PENDING_V2_PREPARED",
+  "phase": "v1-verifier-round3-plus-v2-gated-preparation",
   "last_verified_local": "2026-09-23T10:14:00+03:00",
   "invariants": [
     "never merge PR #1",
@@ -64,14 +64,29 @@
         "result": "CANCELLED_AFTER_10_MIN",
         "likely_blocker": "llama-cli remained interactive; single-turn invocation still needs proof"
       },
-      "paid_ai_credits": false
+      "paid_ai_credits": false,
+      "round2_repair": {
+        "verifier_head": "8e4e1786b845e59bb004235c296b1e034d2ab0ba",
+        "scratch_ci_run": 35831710862,
+        "scratch_ci_job": 107085602573,
+        "result": "PASS",
+        "tests": "18/18",
+        "round3_review_status": "PENDING"
+      }
+    },
+    "autonomous_product_builder_v2": {
+      "status": "PREPARED_BLOCKED_BY_V1_VERIFIER",
+      "mission": "generative_lab_v2/mission.json",
+      "contract": "generative_lab_v2/architect_worker_contract.json",
+      "read_only_ci_extended": true,
+      "product_goal": "Persistent Local Job Queue",
+      "code_started": false
     }
   },
   "next_actions": [
-    "wait for Codex re-review of PR #38 current head and do not declare PROVEN before it",
-    "if re-review finds issues, record fingerprints, repair from review evidence, require new cloud CI, and re-review",
-    "if re-review is clean, mark generative coder minimal proof PROVEN and close verifier PR without merging",
-    "continue hardening trusted proposal validation/application separation",
-    "retry local free model only through a safe non-interactive single-turn path when tooling permits"
+    "accept only a Codex review submitted for verifier PR #38 exact head 8e4e1786b845e59bb004235c296b1e034d2ab0ba",
+    "if findings appear, repair from exact review evidence and require new correlated CI",
+    "if round-3 review is clean, mark V1 PROVEN, close PR #38 without merge, activate V2-OBJ-1",
+    "continue V2 autonomously from generative_lab_v2/mission.json without owner coordination"
   ]
 }
