@@ -25,6 +25,15 @@ class FailureMemoryTests(unittest.TestCase):
         memory.record_failure("strategy-a", "log-v1")
         self.assertTrue(memory.may_attempt("strategy-b", "log-v1"))
 
+    def test_all_failed_evidence_values_remain_blocked(self):
+        memory = FailureMemory()
+        memory.record_failure("strategy-a", "log-v1")
+        memory.record_failure("strategy-a", "log-v2")
+        self.assertFalse(memory.may_attempt("strategy-a", "log-v1"))
+        self.assertFalse(memory.may_attempt("strategy-a", "log-v2"))
+        self.assertTrue(memory.may_attempt("strategy-a", "log-v3"))
+        self.assertEqual(memory.snapshot()["strategy-a"], ["log-v1", "log-v2"])
+
     def test_empty_fingerprint_is_rejected_consistently(self):
         memory = FailureMemory()
         for action in (
