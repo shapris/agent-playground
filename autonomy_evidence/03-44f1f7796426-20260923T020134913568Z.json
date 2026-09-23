@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 3,
+    "task_id": "v6-encoding-profile",
+    "kind": "encoding-profile-recheck",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T02:01:34.913523+00:00",
+    "details": {
+      "profile": "BOM+CRLF exact / UTF8+LF probe"
+    }
+  },
+  "queue_index_after": 4,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}
