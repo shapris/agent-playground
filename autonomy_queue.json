@@ -2,84 +2,18 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 4,
-  "max_cycles": 4,
+  "status": "active",
+  "index": 0,
+  "max_cycles": 6,
   "tasks": [
-    {
-      "id": "v5-critical-hash-snapshot",
-      "kind": "critical-hash-snapshot",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v5-symlink-guard",
-      "kind": "symlink-guard",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v5-state-schema-recheck",
-      "kind": "state-schema-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v5-queue-integrity-recheck",
-      "kind": "queue-integrity-recheck",
-      "expected_probe": "CI_PASS"
-    }
+    {"id":"v6-race-guard","kind":"race-guard-recheck","expected_probe":"CI_PASS"},
+    {"id":"v6-continuity-seal","kind":"continuity-seal","expected_probe":"CI_PASS"},
+    {"id":"v6-critical-size","kind":"critical-size-bounds","expected_probe":"CI_PASS"},
+    {"id":"v6-encoding-profile","kind":"encoding-profile-recheck","expected_probe":"CI_PASS"},
+    {"id":"v6-probe-capability","kind":"probe-capability-recheck","expected_probe":"CI_PASS"},
+    {"id":"v6-exact-byte","kind":"exact-byte-recheck","expected_probe":"CI_PASS"}
   ],
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "v5-critical-hash-snapshot",
-      "kind": "critical-hash-snapshot",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T01:04:07.383153+00:00",
-      "details": {
-        "sha256": {
-          "chat_mode_ci_probe.py": "8629911fefa62f12adc5d9cf36e729acb1316491d597e17aa203eaa2a604209a",
-          "exact_bytes_probe.py": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
-          "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
-          "autonomy_queue.json": "2eb2cb7900b53aa873831cadc946f0f53516bef6b9c69fa790a20054b7440953"
-        }
-      }
-    },
-    {
-      "index": 1,
-      "task_id": "v5-symlink-guard",
-      "kind": "symlink-guard",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T01:04:19.480400+00:00",
-      "details": {
-        "checked": [
-          "chat_mode_ci_probe.py",
-          "exact_bytes_probe.py",
-          "race_guard_probe.txt",
-          "autonomy_queue.json",
-          "autonomy_state.json"
-        ]
-      }
-    },
-    {
-      "index": 2,
-      "task_id": "v5-state-schema-recheck",
-      "kind": "state-schema-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T01:04:40.554506+00:00",
-      "details": {
-        "schema": "PASS"
-      }
-    },
-    {
-      "index": 3,
-      "task_id": "v5-queue-integrity-recheck",
-      "kind": "queue-integrity-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T01:05:02.251628+00:00",
-      "details": {
-        "verified_records": 3
-      }
-    }
-  ],
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -87,6 +21,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V5 deterministic hardening batch repaired from exact runtime validation: trusted driver requires status=active and expected_probe=CI_PASS per task. No AI/model-credit task kinds; existing trusted catalog only.",
-  "last_completed": "v5-queue-integrity-recheck"
+  "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task."
 }
