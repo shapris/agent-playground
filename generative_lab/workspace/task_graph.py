@@ -48,6 +48,9 @@ class TaskGraph:
             visit(task)
 
     def ready_tasks(self, completed=()):
+        if isinstance(completed, (str, bytes)) or not isinstance(completed, Collection):
+            raise ValueError("completed tasks must be a non-string collection")
+
         done = set()
         for item in completed:
             if not isinstance(item, str) or not item:
