@@ -11,20 +11,29 @@ class MissionState:
             raise TypeError("objectives must be a mapping")
         self._objectives = {}
         for objective_id, status in objectives.items():
-            self._objectives[str(objective_id)] = self._validate_status(status)
+            key = self._validate_objective_id(objective_id)
+            if key in self._objectives:
+                raise ValueError(f"duplicate objective identifier: {key}")
+            self._objectives[key] = self._validate_status(status)
+
+    @staticmethod
+    def _validate_objective_id(objective_id):
+        if not isinstance(objective_id, str) or not objective_id:
+            raise ValueError("objective identifiers must be non-empty strings")
+        return objective_id
 
     @classmethod
     def _validate_status(cls, status):
-        status = str(status)
-        if status not in cls.STATUSES:
+        if not isinstance(status, str) or status not in cls.STATUSES:
             raise ValueError(f"invalid mission status: {status}")
         return status
 
     def status(self, objective_id):
-        return self._objectives[str(objective_id)]
+        key = self._validate_objective_id(objective_id)
+        return self._objectives[key]
 
     def transition(self, objective_id, status):
-        key = str(objective_id)
+        key = self._validate_objective_id(objective_id)
         if key not in self._objectives:
             raise KeyError(key)
         self._objectives[key] = self._validate_status(status)
