@@ -34,6 +34,10 @@ class TaskGraphTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "dependency identifiers"):
             TaskGraph({"a": {1}})
 
+    def test_string_dependency_collection_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "non-string collection"):
+            TaskGraph({"compile": "fetch"})
+
 
 if __name__ == "__main__":
     unittest.main()
