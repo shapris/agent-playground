@@ -5,7 +5,10 @@
   "repository": "shapris/agent-playground",
   "branch": "chat-mode-ci-probe-20260922",
   "pull_request": 1,
-  "canonical_projects_locked": ["PUPIS_EVO", "JARVIS_FRESH"],
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
   "status": "PASS_ACTIVE_HARDENING",
   "phase": "v8-deterministic-hardening",
   "last_verified_local": "2026-09-23T08:00:00+03:00",
@@ -28,7 +31,14 @@
     "v8_seed": {
       "result": "SEEDED",
       "commit": "6adfc30d5b9c4c3ecf694ca61f62cc5a2940cc09",
-      "tasks": ["race-guard-recheck", "continuity-seal", "critical-size-bounds", "encoding-profile-recheck", "probe-capability-recheck", "exact-byte-recheck"],
+      "tasks": [
+        "race-guard-recheck",
+        "continuity-seal",
+        "critical-size-bounds",
+        "encoding-profile-recheck",
+        "probe-capability-recheck",
+        "exact-byte-recheck"
+      ],
       "max_cycles": 6,
       "paid_ai_credits": false,
       "scope": "scratch-only"
@@ -38,6 +48,14 @@
       "path": ".github/pupis-autonomy-baseline.json",
       "append_only_task_evidence": true,
       "mutable_state_is_not_safety_root": true
+    },
+    "bounded_autonomy_driver": {
+      "status": "RUNNING",
+      "completed_cycles": 1,
+      "max_cycles": 6,
+      "hard_max_cycles": 6,
+      "last_task": "v8-race-guard",
+      "last_verified_utc": "2026-09-23T05:01:35.950540+00:00"
     }
   },
   "next_actions": [
