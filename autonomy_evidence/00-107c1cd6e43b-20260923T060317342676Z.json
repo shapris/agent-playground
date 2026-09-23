@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 0,
+    "task_id": "v9-critical-hash",
+    "kind": "critical-hash-snapshot",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T06:03:17.342636+00:00",
+    "details": {
+      "sha256": {
+        "chat_mode_ci_probe.py": "8629911fefa62f12adc5d9cf36e729acb1316491d597e17aa203eaa2a604209a",
+        "exact_bytes_probe.py": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+        "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
+        "autonomy_queue.json": "d0bea244fdbd553b631ba1c613f900919d49fa1f65a27af8b1d2688e03f53078"
+      }
+    }
+  },
+  "queue_index_after": 1,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}

@@ -50,12 +50,12 @@
       "mutable_state_is_not_safety_root": true
     },
     "bounded_autonomy_driver": {
-      "status": "COMPLETE",
-      "completed_cycles": 6,
+      "status": "RUNNING",
+      "completed_cycles": 1,
       "max_cycles": 6,
       "hard_max_cycles": 6,
-      "last_task": "v8-exact-byte",
-      "last_verified_utc": "2026-09-23T05:03:52.061318+00:00"
+      "last_task": "v9-critical-hash",
+      "last_verified_utc": "2026-09-23T06:03:17.342636+00:00"
     }
   },
   "next_actions": [

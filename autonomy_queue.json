@@ -3,17 +3,57 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 6,
   "tasks": [
-    {"id":"v9-critical-hash","kind":"critical-hash-snapshot","expected_probe":"CI_PASS"},
-    {"id":"v9-symlink-guard","kind":"symlink-guard","expected_probe":"CI_PASS"},
-    {"id":"v9-probe-syntax","kind":"probe-syntax-recheck","expected_probe":"CI_PASS"},
-    {"id":"v9-state-schema","kind":"state-schema-recheck","expected_probe":"CI_PASS"},
-    {"id":"v9-queue-integrity","kind":"queue-integrity-recheck","expected_probe":"CI_PASS"},
-    {"id":"v9-probe-capability","kind":"probe-capability-recheck","expected_probe":"CI_PASS"}
+    {
+      "id": "v9-critical-hash",
+      "kind": "critical-hash-snapshot",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v9-symlink-guard",
+      "kind": "symlink-guard",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v9-probe-syntax",
+      "kind": "probe-syntax-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v9-state-schema",
+      "kind": "state-schema-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v9-queue-integrity",
+      "kind": "queue-integrity-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v9-probe-capability",
+      "kind": "probe-capability-recheck",
+      "expected_probe": "CI_PASS"
+    }
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "v9-critical-hash",
+      "kind": "critical-hash-snapshot",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T06:03:17.342636+00:00",
+      "details": {
+        "sha256": {
+          "chat_mode_ci_probe.py": "8629911fefa62f12adc5d9cf36e729acb1316491d597e17aa203eaa2a604209a",
+          "exact_bytes_probe.py": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+          "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
+          "autonomy_queue.json": "d0bea244fdbd553b631ba1c613f900919d49fa1f65a27af8b1d2688e03f53078"
+        }
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -21,5 +61,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V9 bounded integrity batch seeded after V8 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task."
+  "note": "V9 bounded integrity batch seeded after V8 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
+  "last_completed": "v9-critical-hash"
 }
