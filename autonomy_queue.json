@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 4,
   "tasks": [
     {
@@ -27,7 +27,23 @@
       "expected_probe": "CI_PASS"
     }
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "v7-critical-hash",
+      "kind": "critical-hash-snapshot",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T04:00:50.506829+00:00",
+      "details": {
+        "sha256": {
+          "chat_mode_ci_probe.py": "8629911fefa62f12adc5d9cf36e729acb1316491d597e17aa203eaa2a604209a",
+          "exact_bytes_probe.py": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6",
+          "race_guard_probe.txt": "11db340342bcebcfa9743767a9e016d96e4446909f19ce3d31e6b639be73dc30",
+          "autonomy_queue.json": "735cd878c7c893772dec541d4269914a99b356c0c41be211f834b388ab134257"
+        }
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -35,5 +51,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V7 bounded integrity batch seeded after V6 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task."
+  "note": "V7 bounded integrity batch seeded after V6 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
+  "last_completed": "v7-critical-hash"
 }
