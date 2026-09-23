@@ -1,0 +1,122 @@
+{
+  "schema": 2,
+  "mission_id": "autonomous-product-builder-v2",
+  "goal": "Build a small persistent local job queue product that survives restart and supports safe idempotent enqueue, deterministic claiming, acknowledgement, failure and bounded retry.",
+  "status": "WAITING_FOR_V1_VERIFIER",
+  "feature": "Persistent Local Job Queue",
+  "why_selected": "Higher information value than another isolated algorithm: requires multi-module interaction, durable state, restart semantics, idempotency, edge cases, unit tests and integration tests while remaining safe and offline.",
+  "budget": {
+    "max_objectives": 3,
+    "max_iterations_per_objective": 3,
+    "max_files": 6,
+    "max_diff_bytes": 30000,
+    "verifier_repair_rounds": 3
+  },
+  "contract": {
+    "risk_level": "low",
+    "required_verifier": "independent code review after all objectives PASS",
+    "test_profile": "python-unittest-genlab",
+    "forbidden_paths": [
+      ".github/",
+      "autonomy_",
+      "PUPIS_EVO",
+      "JARVIS_FRESH"
+    ],
+    "forbidden_capabilities": [
+      "network",
+      "subprocess",
+      "shell",
+      "eval",
+      "exec",
+      "dynamic imports"
+    ],
+    "stop_conditions": [
+      "3 objectives DONE",
+      "iteration budget exhausted",
+      "safety gate failure",
+      "unexplained CI failure"
+    ]
+  },
+  "objectives": [
+    {
+      "id": "V2-OBJ-1",
+      "status": "BLOCKED_BY_V1",
+      "goal": "Define immutable Job value object and durable JsonJobStore with atomic-ish replace semantics and JSON round-trip.",
+      "acceptance_criteria": [
+        "job identifiers are non-empty strings",
+        "state is one of READY, CLAIMED, DONE, FAILED",
+        "store load/save round-trip preserves records",
+        "missing store file loads as empty",
+        "malformed JSON fails loudly without overwriting original data"
+      ],
+      "allowed_paths": [
+        "generative_lab_v2/workspace/job.py",
+        "generative_lab_v2/workspace/json_store.py",
+        "generative_lab_v2/tests/test_store.py"
+      ],
+      "dependencies": [],
+      "next_if_pass": "V2-OBJ-2",
+      "next_if_fail": "repair from exact CI log"
+    },
+    {
+      "id": "V2-OBJ-2",
+      "status": "BLOCKED",
+      "goal": "Implement PersistentJobQueue over JsonJobStore with idempotent enqueue, deterministic claim, ack, fail and bounded retry.",
+      "acceptance_criteria": [
+        "enqueue of same id+payload is idempotent",
+        "enqueue of same id with different payload is rejected",
+        "claim returns oldest READY job deterministically",
+        "ack only accepts CLAIMED job",
+        "fail increments attempts and returns READY until max_attempts then FAILED",
+        "invalid transitions fail loudly"
+      ],
+      "allowed_paths": [
+        "generative_lab_v2/workspace/job_queue.py",
+        "generative_lab_v2/tests/test_queue.py"
+      ],
+      "existing_files_to_read": [
+        "generative_lab_v2/workspace/job.py",
+        "generative_lab_v2/workspace/json_store.py"
+      ],
+      "dependencies": [
+        "V2-OBJ-1"
+      ],
+      "next_if_pass": "V2-OBJ-3",
+      "next_if_fail": "repair from exact CI log"
+    },
+    {
+      "id": "V2-OBJ-3",
+      "status": "BLOCKED",
+      "goal": "Prove restart-safe end-to-end behavior across process-like reconstruction of store and queue.",
+      "acceptance_criteria": [
+        "enqueue then reconstruct queue from disk preserves READY job",
+        "claim then reconstruct preserves CLAIMED state",
+        "fail/retry survives restart",
+        "DONE job is never claimable after restart",
+        "integration scenario contains at least one edge-case assertion not duplicated from unit tests"
+      ],
+      "allowed_paths": [
+        "generative_lab_v2/tests/test_integration.py"
+      ],
+      "existing_files_to_read": [
+        "generative_lab_v2/workspace/job.py",
+        "generative_lab_v2/workspace/json_store.py",
+        "generative_lab_v2/workspace/job_queue.py"
+      ],
+      "dependencies": [
+        "V2-OBJ-1",
+        "V2-OBJ-2"
+      ],
+      "next_if_pass": "INDEPENDENT_VERIFICATION",
+      "next_if_fail": "repair from exact CI log"
+    }
+  ],
+  "current_objective": null,
+  "attempts": [],
+  "failures": [],
+  "evidence": [],
+  "restartability": {
+    "requirement": "A fresh Director turn must be able to choose the next READY objective using this file plus GitHub CI/review evidence only.",
+    "last_checkpoint_reason": "Prepared while V1 round-3 verifier was pending; no V2 code may start until V1 is PROVEN."
+  }
+}

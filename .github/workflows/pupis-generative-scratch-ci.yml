@@ -1,0 +1,39 @@
+name: PUPIS Generative Scratch CI
+
+on:
+  push:
+    branches:
+      - chat-mode-ci-probe-20260922
+    paths:
+      - generative_lab/**
+      - generative_lab_v2/**
+      - generative_proposals/**
+      - .github/workflows/pupis-generative-scratch-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Compile generated Python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q generative_lab/workspace generative_lab/tests
+          if [ -d generative_lab_v2/workspace ] || [ -d generative_lab_v2/tests ]; then
+            python -m compileall -q generative_lab_v2/workspace generative_lab_v2/tests
+          fi
+      - name: Run generated unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s generative_lab/tests -p 'test_*.py' -v
+          if [ -d generative_lab_v2/tests ]; then
+            python -m unittest discover -s generative_lab_v2/tests -p 'test_*.py' -v
+          fi

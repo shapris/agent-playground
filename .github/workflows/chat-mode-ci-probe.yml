@@ -1,0 +1,17 @@
+name: Chat Mode CI Probe
+
+on:
+  push:
+    branches:
+      - chat-mode-ci-probe-20260922
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute probe
+        run: python chat_mode_ci_probe.py

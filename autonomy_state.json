@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "purpose": "PUPIS EVO architect-plus-worker scratch autonomy state",
+  "scope": "scratch-only",
+  "repository": "shapris/agent-playground",
+  "branch": "chat-mode-ci-probe-20260922",
+  "pull_request": 1,
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "status": "PASS_GENERATIVE_CODER_ROUND3_VERIFIER_PENDING_V2_PREPARED",
+  "phase": "v1-verifier-round3-plus-v2-gated-preparation",
+  "last_verified_local": "2026-09-23T10:14:00+03:00",
+  "invariants": [
+    "never merge PR #1",
+    "never touch canonical PUPIS_EVO without explicit owner authorization",
+    "never touch JARVIS_FRESH",
+    "fetch current blob SHA before every update",
+    "on 409 CONFLICT refetch and reconcile before retry",
+    "require CI/log evidence before claiming PASS"
+  ],
+  "evidence": {
+    "bounded_autonomy_driver": {
+      "status": "COMPLETE",
+      "completed_cycles": 6,
+      "max_cycles": 6,
+      "hard_max_cycles": 6,
+      "last_task": "v9-probe-capability",
+      "last_verified_utc": "2026-09-23T06:04:57.535458+00:00"
+    },
+    "generative_coder_v1": {
+      "mission": "gen-coder-proof-v1",
+      "objectives_done": 3,
+      "obj1_initial_fail": "reverse lexical order",
+      "obj1_repair_cloud_ci": 35828712226,
+      "obj2_cloud_ci": 35829322431,
+      "obj3_cloud_ci": 35829398594,
+      "first_independent_review": {
+        "pr": 38,
+        "reviewed_commit": "36b8047563acae3e3362e3b2547c48d9f0e5f7fb",
+        "result": "3 P2 findings",
+        "findings": [
+          "normalized task identifier collision",
+          "normalized objective identifier collision",
+          "empty fingerprint gate bypass"
+        ]
+      },
+      "post_review_repair_ci": {
+        "run_id": 35830430837,
+        "job_id": 107081509691,
+        "result": "PASS",
+        "tests": "16/16"
+      },
+      "re_review": {
+        "pr": 38,
+        "head": "ca5d9d94b7876949e0a053ce9e267c3c1d5b1b2d",
+        "status": "PENDING"
+      },
+      "local_free_model": {
+        "candidate": "Qwen2.5-Coder-0.5B-Instruct-GGUF",
+        "runtime_and_model_sha_verified": true,
+        "run_id": 35829094351,
+        "result": "CANCELLED_AFTER_10_MIN",
+        "likely_blocker": "llama-cli remained interactive; single-turn invocation still needs proof"
+      },
+      "paid_ai_credits": false,
+      "round2_repair": {
+        "verifier_head": "8e4e1786b845e59bb004235c296b1e034d2ab0ba",
+        "scratch_ci_run": 35831710862,
+        "scratch_ci_job": 107085602573,
+        "result": "PASS",
+        "tests": "18/18",
+        "round3_review_status": "PENDING"
+      }
+    },
+    "autonomous_product_builder_v2": {
+      "status": "PREPARED_BLOCKED_BY_V1_VERIFIER",
+      "mission": "generative_lab_v2/mission.json",
+      "contract": "generative_lab_v2/architect_worker_contract.json",
+      "read_only_ci_extended": true,
+      "product_goal": "Persistent Local Job Queue",
+      "code_started": false
+    }
+  },
+  "next_actions": [
+    "accept only a Codex review submitted for verifier PR #38 exact head 8e4e1786b845e59bb004235c296b1e034d2ab0ba",
+    "if findings appear, repair from exact review evidence and require new correlated CI",
+    "if round-3 review is clean, mark V1 PROVEN, close PR #38 without merge, activate V2-OBJ-1",
+    "continue V2 autonomously from generative_lab_v2/mission.json without owner coordination"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 5,
+    "task_id": "v6-exact-byte",
+    "kind": "exact-byte-recheck",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T02:02:17.552231+00:00",
+    "details": {
+      "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
+    }
+  },
+  "queue_index_after": 6,
+  "queue_status_after": "complete",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}

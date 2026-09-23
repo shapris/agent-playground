@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "contract": "PUPIS_GENERATIVE_CODER_V1",
+  "scope": "scratch-only",
+  "repository": "shapris/agent-playground",
+  "branch": "chat-mode-ci-probe-20260922",
+  "mission_ssot": "generative_lab/mission.json",
+  "proposal_root": "generative_proposals/gen-coder-proof-v1/",
+  "generated_roots": [
+    "generative_lab/workspace/",
+    "generative_lab/tests/"
+  ],
+  "forbidden_roots": [
+    ".github/",
+    "PUPIS_EVO/",
+    "JARVIS_FRESH/"
+  ],
+  "architect_output_required": [
+    "mission_id",
+    "objective_id",
+    "attempt_id",
+    "rationale",
+    "changes"
+  ],
+  "proposal_change_contract": {
+    "allowed_ops": [
+      "write"
+    ],
+    "max_files": 4,
+    "max_total_utf8_bytes": 20000,
+    "path_must_match_current_objective_allowed_paths": true,
+    "forbidden_content": [
+      "credentials",
+      "private keys",
+      "network calls",
+      "subprocess/shell",
+      "dynamic eval/exec"
+    ]
+  },
+  "execution_contract": {
+    "ci_workflow": "PUPIS Generative Scratch CI",
+    "ci_permissions": "contents:read",
+    "pass_requires": [
+      "workflow conclusion=success",
+      "actual unittest execution",
+      "mission evidence updated"
+    ],
+    "fail_requires": [
+      "fetch failing job logs",
+      "record stable failure fingerprint",
+      "generate new repair proposal from log"
+    ],
+    "max_attempts_per_objective": 3
+  },
+  "planning_contract": {
+    "min_objectives": 3,
+    "select_next_ready_without_owner": true,
+    "failure_memory_binding": true,
+    "durable_reasoning_required": true,
+    "overall_proven_requires_independent_verifier": true
+  },
+  "canonical_locks": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "never_merge_pr": 1
+}

@@ -1,0 +1,2 @@
+AUTONOMY_DRIVER_CYCLE=4
+TASK=hardening-4

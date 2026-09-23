@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 2,
+    "task_id": "v7-state-schema",
+    "kind": "state-schema-recheck",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T04:01:35.371502+00:00",
+    "details": {
+      "schema": "PASS"
+    }
+  },
+  "queue_index_after": 3,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}

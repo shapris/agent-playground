@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 1,
+    "task_id": "v8-continuity-seal",
+    "kind": "continuity-seal",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T05:01:55.422452+00:00",
+    "details": {
+      "probe_safe": true
+    }
+  },
+  "queue_index_after": 2,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}

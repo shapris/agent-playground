@@ -1,0 +1,36 @@
+{
+  "mission_id": "gen-coder-proof-v1",
+  "attempt_id": "VERIFIER-R3-REPAIR",
+  "source_review_id": "PRR_kwDOSy_H_c8AAAABOzHkkQ",
+  "reviewed_sha": "8e4e1786b845e59bb004235c296b1e034d2ab0ba",
+  "rationale": "Repair exactly the two new P2 findings from verifier round 3: reject scalar string/bytes completed collections in TaskGraph.ready_tasks, and preserve evidence identity in FailureMemory by requiring non-empty string evidence rather than coercing arbitrary values.",
+  "findings": [
+    "string-completed-collection-splits-characters",
+    "failure-memory-evidence-stringification-collision"
+  ],
+  "files": [
+    {
+      "path": "generative_lab/workspace/task_graph.py",
+      "change": "Before iterating completed, reject str/bytes and non-Collection values with ValueError."
+    },
+    {
+      "path": "generative_lab/tests/test_task_graph.py",
+      "change": "Add regression tests rejecting scalar string and bytes completed collections."
+    },
+    {
+      "path": "generative_lab/workspace/failure_memory.py",
+      "change": "Add evidence validation requiring non-empty strings and use validated evidence without str coercion in record_failure and may_attempt."
+    },
+    {
+      "path": "generative_lab/tests/test_failure_memory.py",
+      "change": "Add regression tests proving non-string evidence is rejected consistently and cannot collide with string evidence."
+    }
+  ],
+  "constraints": {
+    "max_files": 4,
+    "no_network": true,
+    "no_subprocess": true,
+    "no_eval_exec": true,
+    "workspace_tests_only": true
+  }
+}
