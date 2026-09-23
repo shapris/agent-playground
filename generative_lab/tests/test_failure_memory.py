@@ -44,6 +44,23 @@ class FailureMemoryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "fingerprint"):
                 action()
 
+    def test_non_string_evidence_is_rejected_consistently(self):
+        memory = FailureMemory()
+        for action in (
+            lambda: memory.record_failure("strategy-a", 1),
+            lambda: memory.may_attempt("strategy-a", 1),
+            lambda: memory.require_attempt_allowed("strategy-a", 1),
+        ):
+            with self.assertRaisesRegex(ValueError, "evidence"):
+                action()
+
+    def test_string_evidence_identity_is_preserved(self):
+        memory = FailureMemory()
+        memory.record_failure("strategy-a", "1")
+        self.assertFalse(memory.may_attempt("strategy-a", "1"))
+        with self.assertRaisesRegex(ValueError, "evidence"):
+            memory.may_attempt("strategy-a", 1)
+
 
 if __name__ == "__main__":
     unittest.main()
