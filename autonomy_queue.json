@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 3,
+  "index": 4,
   "max_cycles": 6,
   "tasks": [
     {
@@ -78,6 +78,16 @@
       "details": {
         "syntax": "PASS"
       }
+    },
+    {
+      "index": 3,
+      "task_id": "v9-state-schema",
+      "kind": "state-schema-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T06:04:20.020733+00:00",
+      "details": {
+        "schema": "PASS"
+      }
     }
   ],
   "safety": [
@@ -88,5 +98,5 @@
     "stop after max_cycles"
   ],
   "note": "V9 bounded integrity batch seeded after V8 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v9-probe-syntax"
+  "last_completed": "v9-state-schema"
 }
