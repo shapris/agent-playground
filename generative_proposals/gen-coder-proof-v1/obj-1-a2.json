@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "mission_id": "gen-coder-proof-v1",
+  "objective_id": "OBJ-1",
+  "attempt_id": "OBJ-1-A2",
+  "branch": "pupis-gen-task-graph-v1",
+  "test_profile": "python-unittest-genlab",
+  "rationale": "Real test log showed ready_tasks returned reverse lexical order. Repair only the sort direction.",
+  "changes": [
+    {
+      "op": "write",
+      "path": "generative_lab/workspace/task_graph.py",
+      "content": "\"\"\"Small dependency graph used by the PUPIS generative-coder proof.\"\"\"\n\nclass TaskGraph:\n    def __init__(self, dependencies):\n        if not isinstance(dependencies, dict):\n            raise TypeError(\"dependencies must be a mapping\")\n        self._deps = {str(task): {str(dep) for dep in deps} for task, deps in dependencies.items()}\n        missing = set().union(*self._deps.values()) - set(self._deps) if self._deps else set()\n        for task in missing:\n            self._deps[task] = set()\n        self._assert_acyclic()\n\n    def _assert_acyclic(self):\n        visiting = set()\n        visited = set()\n\n        def visit(task):\n            if task in visiting:\n                raise ValueError(f\"dependency cycle detected at {task}\")\n            if task in visited:\n                return\n            visiting.add(task)\n            for dep in self._deps[task]:\n                visit(dep)\n            visiting.remove(task)\n            visited.add(task)\n\n        for task in self._deps:\n            visit(task)\n\n    def ready_tasks(self, completed=()):\n        done = {str(item) for item in completed}\n        ready = [\n            task\n            for task, deps in self._deps.items()\n            if task not in done and deps.issubset(done)\n        ]\n        return sorted(ready)\n"
+    }
+  ]
+}
