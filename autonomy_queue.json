@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "active",
-  "index": 5,
+  "status": "complete",
+  "index": 6,
   "max_cycles": 6,
   "tasks": [
     {
@@ -93,6 +93,16 @@
       "details": {
         "capability": "PRINT_CONSTANTS_ONLY"
       }
+    },
+    {
+      "index": 5,
+      "task_id": "v6-exact-byte",
+      "kind": "exact-byte-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T02:02:17.552231+00:00",
+      "details": {
+        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
+      }
     }
   ],
   "safety": [
@@ -103,5 +113,5 @@
     "stop after max_cycles"
   ],
   "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v6-probe-capability"
+  "last_completed": "v6-exact-byte"
 }
