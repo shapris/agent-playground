@@ -38,6 +38,16 @@ class TaskGraphTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-string collection"):
             TaskGraph({"compile": "fetch"})
 
+    def test_scalar_string_completed_collection_is_rejected(self):
+        graph = TaskGraph({"fetch": set(), "compile": {"fetch"}})
+        with self.assertRaisesRegex(ValueError, "non-string collection"):
+            graph.ready_tasks("fetch")
+
+    def test_bytes_completed_collection_is_rejected(self):
+        graph = TaskGraph({"a": set()})
+        with self.assertRaisesRegex(ValueError, "non-string collection"):
+            graph.ready_tasks(b"a")
+
 
 if __name__ == "__main__":
     unittest.main()
