@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "mission_id": "gen-coder-proof-v1",
+  "mission": "Build a small dependency-aware task planner library from a high-level goal, prove generated implementation -> real FAIL -> generated repair -> PASS, then continue to later objectives without owner coordination.",
+  "status": "ACTIVE",
+  "budget": {
+    "max_objectives": 3,
+    "max_attempts_per_objective": 3,
+    "max_files_per_attempt": 4,
+    "max_total_bytes": 20000
+  },
+  "objectives": [
+    {
+      "id": "OBJ-1",
+      "status": "READY",
+      "objective": "Implement a dependency graph with deterministic ready-task selection and cycle detection.",
+      "acceptance_criteria": [
+        "ready_tasks(done) returns lexicographically sorted tasks whose dependencies are satisfied",
+        "unknown completed task names do not change graph semantics",
+        "cycles raise ValueError with a useful message"
+      ],
+      "allowed_paths": [
+        "generative_lab/workspace/task_graph.py",
+        "generative_lab/tests/test_task_graph.py"
+      ],
+      "next_if_pass": "OBJ-2",
+      "next_if_fail": "repair same objective from real test log"
+    },
+    {
+      "id": "OBJ-2",
+      "status": "BLOCKED",
+      "objective": "Implement durable mission state with DONE/READY/BLOCKED transitions and JSON round-trip.",
+      "allowed_paths": [
+        "generative_lab/workspace/mission_state.py",
+        "generative_lab/tests/test_mission_state.py"
+      ],
+      "next_if_pass": "OBJ-3",
+      "next_if_fail": "repair same objective from real test log"
+    },
+    {
+      "id": "OBJ-3",
+      "status": "BLOCKED",
+      "objective": "Implement failure memory that prevents repeating a failed strategy fingerprint unless evidence changed.",
+      "allowed_paths": [
+        "generative_lab/workspace/failure_memory.py",
+        "generative_lab/tests/test_failure_memory.py"
+      ],
+      "next_if_pass": "MISSION_DONE",
+      "next_if_fail": "repair same objective from real test log"
+    }
+  ],
+  "current_objective": "OBJ-1",
+  "attempts": [],
+  "failures": [],
+  "evidence": [],
+  "stop_conditions": [
+    "3 objectives DONE",
+    "attempt budget exhausted",
+    "safety gate failure"
+  ],
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ]
+}
