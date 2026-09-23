@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "mission_id": "gen-coder-proof-v1",
+  "objective_id": "OBJ-2",
+  "attempt_id": "OBJ-2-A2",
+  "rationale": "Independent Codex verifier found that objective IDs were string-normalized and could collide (1 versus '1'). Repair by requiring non-empty string identifiers at construction, lookup, and transition boundaries.",
+  "changes": [
+    {
+      "op": "write",
+      "path": "generative_lab/workspace/mission_state.py",
+      "content": "\"\"\"Durable in-memory mission state for the generative-coder proof.\"\"\"\n\nimport json\n\n\nclass MissionState:\n    STATUSES = frozenset({\"DONE\", \"READY\", \"BLOCKED\"})\n\n    def __init__(self, objectives):\n        if not isinstance(objectives, dict):\n            raise TypeError(\"objectives must be a mapping\")\n        self._objectives = {}\n        for objective_id, status in objectives.items():\n            key = self._validate_objective_id(objective_id)\n            if key in self._objectives:\n                raise ValueError(f\"duplicate objective identifier: {key}\")\n            self._objectives[key] = self._validate_status(status)\n\n    @staticmethod\n    def _validate_objective_id(objective_id):\n        if not isinstance(objective_id, str) or not objective_id:\n            raise ValueError(\"objective identifiers must be non-empty strings\")\n        return objective_id\n\n    @classmethod\n    def _validate_status(cls, status):\n        if not isinstance(status, str) or status not in cls.STATUSES:\n            raise ValueError(f\"invalid mission status: {status}\")\n        return status\n\n    def status(self, objective_id):\n        key = self._validate_objective_id(objective_id)\n        return self._objectives[key]\n\n    def transition(self, objective_id, status):\n        key = self._validate_objective_id(objective_id)\n        if key not in self._objectives:\n            raise KeyError(key)\n        self._objectives[key] = self._validate_status(status)\n\n    def to_json(self):\n        return json.dumps({\"objectives\": self._objectives}, sort_keys=True, separators=(\",\", \":\"))\n\n    @classmethod\n    def from_json(cls, payload):\n        decoded = json.loads(payload)\n        if not isinstance(decoded, dict) or set(decoded) != {\"objectives\"}:\n            raise ValueError(\"mission state JSON must contain only objectives\")\n        return cls(decoded[\"objectives\"])\n\n    def snapshot(self):\n        return dict(self._objectives)\n"
+    },
+    {
+      "op": "write",
+      "path": "generative_lab/tests/test_mission_state.py",
+      "content": "import unittest\n\nfrom generative_lab.workspace.mission_state import MissionState\n\n\nclass MissionStateTests(unittest.TestCase):\n    def test_done_ready_blocked_transitions(self):\n        state = MissionState({\"OBJ-1\": \"READY\", \"OBJ-2\": \"BLOCKED\"})\n        state.transition(\"OBJ-1\", \"DONE\")\n        state.transition(\"OBJ-2\", \"READY\")\n        self.assertEqual(state.snapshot(), {\"OBJ-1\": \"DONE\", \"OBJ-2\": \"READY\"})\n\n    def test_json_round_trip_preserves_state(self):\n        original = MissionState({\"OBJ-2\": \"READY\", \"OBJ-1\": \"DONE\"})\n        payload = original.to_json()\n        restored = MissionState.from_json(payload)\n        self.assertEqual(restored.snapshot(), original.snapshot())\n        self.assertEqual(restored.to_json(), payload)\n\n    def test_invalid_status_is_rejected(self):\n        with self.assertRaisesRegex(ValueError, \"invalid mission status\"):\n            MissionState({\"OBJ-1\": \"RUNNING\"})\n        state = MissionState({\"OBJ-1\": \"READY\"})\n        with self.assertRaises(ValueError):\n            state.transition(\"OBJ-1\", \"UNKNOWN\")\n\n    def test_unknown_objective_cannot_be_created_by_transition(self):\n        state = MissionState({\"OBJ-1\": \"READY\"})\n        with self.assertRaises(KeyError):\n            state.transition(\"OBJ-X\", \"DONE\")\n\n    def test_non_string_objective_identifier_is_rejected(self):\n        with self.assertRaisesRegex(ValueError, \"objective identifiers\"):\n            MissionState({1: \"READY\", \"1\": \"BLOCKED\"})\n\n    def test_non_string_lookup_identifier_is_rejected(self):\n        state = MissionState({\"1\": \"READY\"})\n        with self.assertRaisesRegex(ValueError, \"objective identifiers\"):\n            state.status(1)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+    }
+  ],
+  "verifier_finding": {
+    "pr": 38,
+    "severity": "P2",
+    "fingerprint": "normalized-objective-identifier-collision"
+  }
+}
