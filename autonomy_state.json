@@ -9,9 +9,9 @@
     "PUPIS_EVO",
     "JARVIS_FRESH"
   ],
-  "status": "PASS_ACTIVE_HARDENING",
-  "phase": "v8-deterministic-hardening",
-  "last_verified_local": "2026-09-23T08:00:00+03:00",
+  "status": "PASS_ACTIVE_GENERATIVE_CODER_PROOF",
+  "phase": "generative-coder-long-horizon-v1",
+  "last_verified_local": "2026-09-23T09:55:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -56,12 +56,29 @@
       "hard_max_cycles": 6,
       "last_task": "v9-probe-capability",
       "last_verified_utc": "2026-09-23T06:04:57.535458+00:00"
+    },
+    "generative_coder_v1": {
+      "mission": "gen-coder-proof-v1",
+      "obj1": {
+        "result": "PASS",
+        "generated_attempt_1": "FAIL",
+        "failure": "ready_tasks reverse lexical order",
+        "generated_repair_attempt_2": "PASS",
+        "local_tests": "3/3 PASS",
+        "cloud_ci_run": 35828712226,
+        "cloud_ci_job": 107076122636,
+        "cloud_tests": "3/3 PASS"
+      },
+      "current_objective": "OBJ-2",
+      "director_mode": "single canonical Director; no new automations",
+      "paid_ai_credits": false
     }
   },
   "next_actions": [
-    "allow existing GitHub-native driver/schedule path to consume V8 queue",
-    "on FAIL inspect exact Actions job/log and repair only with current blob SHA",
-    "after V8 completion choose next bounded batch from trusted catalog without duplicate PRs",
-    "never touch canonical PUPIS_EVO or JARVIS_FRESH without explicit owner authorization"
+    "single PUPIS EVO Director must execute OBJ-2 from generative_lab/mission.json without owner coordination",
+    "require PUPIS Generative Scratch CI evidence for every attempt",
+    "on real FAIL generate repair from job logs and record failure fingerprint",
+    "after OBJ-2 PASS automatically select OBJ-3",
+    "after all objectives PASS require independent verifier before declaring PROVEN"
   ]
 }
