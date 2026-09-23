@@ -8,19 +8,23 @@
   "tasks": [
     {
       "id": "v5-critical-hash-snapshot",
-      "kind": "critical-hash-snapshot"
+      "kind": "critical-hash-snapshot",
+      "expected_probe": "CI_PASS"
     },
     {
       "id": "v5-symlink-guard",
-      "kind": "symlink-guard"
+      "kind": "symlink-guard",
+      "expected_probe": "CI_PASS"
     },
     {
       "id": "v5-state-schema-recheck",
-      "kind": "state-schema-recheck"
+      "kind": "state-schema-recheck",
+      "expected_probe": "CI_PASS"
     },
     {
       "id": "v5-queue-integrity-recheck",
-      "kind": "queue-integrity-recheck"
+      "kind": "queue-integrity-recheck",
+      "expected_probe": "CI_PASS"
     }
   ],
   "evidence": [],
@@ -31,5 +35,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V5 deterministic hardening batch activated after runtime validation proved trusted driver accepts active/complete, not ready. No AI/model-credit task kinds; existing trusted catalog only."
+  "note": "V5 deterministic hardening batch repaired from exact runtime validation: trusted driver requires status=active and expected_probe=CI_PASS per task. No AI/model-credit task kinds; existing trusted catalog only."
 }
