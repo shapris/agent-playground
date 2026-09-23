@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "mission_id": "gen-coder-proof-v1",
+  "objective_id": "OBJ-3",
+  "attempt_id": "OBJ-3-A2",
+  "rationale": "Independent Codex verifier found an empty-fingerprint bypass: gating allowed an empty fingerprint even though recording rejected it. Centralize fingerprint validation and apply it to record, may_attempt, and require_attempt_allowed.",
+  "changes": [
+    {
+      "op": "write",
+      "path": "generative_lab/workspace/failure_memory.py",
+      "content": "\"\"\"Failure-strategy memory with evidence-sensitive retry gating.\"\"\"\n\n\nclass FailureMemory:\n    def __init__(self):\n        self._failures = {}\n\n    @staticmethod\n    def _validate_fingerprint(fingerprint):\n        if not isinstance(fingerprint, str) or not fingerprint:\n            raise ValueError(\"fingerprint must be a non-empty string\")\n        return fingerprint\n\n    def record_failure(self, fingerprint, evidence):\n        key = self._validate_fingerprint(fingerprint)\n        self._failures[key] = str(evidence)\n\n    def may_attempt(self, fingerprint, evidence):\n        key = self._validate_fingerprint(fingerprint)\n        if key not in self._failures:\n            return True\n        return self._failures[key] != str(evidence)\n\n    def require_attempt_allowed(self, fingerprint, evidence):\n        if not self.may_attempt(fingerprint, evidence):\n            raise ValueError(f\"failed strategy fingerprint blocked: {fingerprint}\")\n\n    def snapshot(self):\n        return dict(self._failures)\n"
+    },
+    {
+      "op": "write",
+      "path": "generative_lab/tests/test_failure_memory.py",
+      "content": "import unittest\n\nfrom generative_lab.workspace.failure_memory import FailureMemory\n\n\nclass FailureMemoryTests(unittest.TestCase):\n    def test_unseen_strategy_is_allowed(self):\n        memory = FailureMemory()\n        self.assertTrue(memory.may_attempt(\"strategy-a\", \"log-v1\"))\n\n    def test_same_fingerprint_and_evidence_is_blocked(self):\n        memory = FailureMemory()\n        memory.record_failure(\"strategy-a\", \"log-v1\")\n        self.assertFalse(memory.may_attempt(\"strategy-a\", \"log-v1\"))\n        with self.assertRaisesRegex(ValueError, \"strategy-a\"):\n            memory.require_attempt_allowed(\"strategy-a\", \"log-v1\")\n\n    def test_changed_evidence_allows_reconsideration(self):\n        memory = FailureMemory()\n        memory.record_failure(\"strategy-a\", \"log-v1\")\n        self.assertTrue(memory.may_attempt(\"strategy-a\", \"log-v2\"))\n\n    def test_other_fingerprint_is_independent(self):\n        memory = FailureMemory()\n        memory.record_failure(\"strategy-a\", \"log-v1\")\n        self.assertTrue(memory.may_attempt(\"strategy-b\", \"log-v1\"))\n\n    def test_empty_fingerprint_is_rejected_consistently(self):\n        memory = FailureMemory()\n        for action in (\n            lambda: memory.record_failure(\"\", \"log-v1\"),\n            lambda: memory.may_attempt(\"\", \"log-v1\"),\n            lambda: memory.require_attempt_allowed(\"\", \"log-v1\"),\n        ):\n            with self.assertRaisesRegex(ValueError, \"fingerprint\"):\n                action()\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+    }
+  ],
+  "verifier_finding": {
+    "pr": 38,
+    "severity": "P2",
+    "fingerprint": "empty-fingerprint-gate-bypass"
+  }
+}
