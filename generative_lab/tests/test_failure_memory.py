@@ -25,6 +25,16 @@ class FailureMemoryTests(unittest.TestCase):
         memory.record_failure("strategy-a", "log-v1")
         self.assertTrue(memory.may_attempt("strategy-b", "log-v1"))
 
+    def test_empty_fingerprint_is_rejected_consistently(self):
+        memory = FailureMemory()
+        for action in (
+            lambda: memory.record_failure("", "log-v1"),
+            lambda: memory.may_attempt("", "log-v1"),
+            lambda: memory.require_attempt_allowed("", "log-v1"),
+        ):
+            with self.assertRaisesRegex(ValueError, "fingerprint"):
+                action()
+
 
 if __name__ == "__main__":
     unittest.main()
