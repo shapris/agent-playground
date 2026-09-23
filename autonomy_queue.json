@@ -3,17 +3,52 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 0,
+  "index": 1,
   "max_cycles": 6,
   "tasks": [
-    {"id":"v6-race-guard","kind":"race-guard-recheck","expected_probe":"CI_PASS"},
-    {"id":"v6-continuity-seal","kind":"continuity-seal","expected_probe":"CI_PASS"},
-    {"id":"v6-critical-size","kind":"critical-size-bounds","expected_probe":"CI_PASS"},
-    {"id":"v6-encoding-profile","kind":"encoding-profile-recheck","expected_probe":"CI_PASS"},
-    {"id":"v6-probe-capability","kind":"probe-capability-recheck","expected_probe":"CI_PASS"},
-    {"id":"v6-exact-byte","kind":"exact-byte-recheck","expected_probe":"CI_PASS"}
+    {
+      "id": "v6-race-guard",
+      "kind": "race-guard-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v6-continuity-seal",
+      "kind": "continuity-seal",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v6-critical-size",
+      "kind": "critical-size-bounds",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v6-encoding-profile",
+      "kind": "encoding-profile-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v6-probe-capability",
+      "kind": "probe-capability-recheck",
+      "expected_probe": "CI_PASS"
+    },
+    {
+      "id": "v6-exact-byte",
+      "kind": "exact-byte-recheck",
+      "expected_probe": "CI_PASS"
+    }
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "index": 0,
+      "task_id": "v6-race-guard",
+      "kind": "race-guard-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T02:00:30.887378+00:00",
+      "details": {
+        "race_guard": "VERSION=3_RECOVERED"
+      }
+    }
+  ],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -21,5 +56,6 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task."
+  "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
+  "last_completed": "v6-race-guard"
 }
