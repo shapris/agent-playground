@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 1,
+  "index": 2,
   "max_cycles": 4,
   "tasks": [
     {
@@ -42,6 +42,22 @@
           "autonomy_queue.json": "735cd878c7c893772dec541d4269914a99b356c0c41be211f834b388ab134257"
         }
       }
+    },
+    {
+      "index": 1,
+      "task_id": "v7-symlink-guard",
+      "kind": "symlink-guard",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T04:01:15.586259+00:00",
+      "details": {
+        "checked": [
+          "chat_mode_ci_probe.py",
+          "exact_bytes_probe.py",
+          "race_guard_probe.txt",
+          "autonomy_queue.json",
+          "autonomy_state.json"
+        ]
+      }
     }
   ],
   "safety": [
@@ -52,5 +68,5 @@
     "stop after max_cycles"
   ],
   "note": "V7 bounded integrity batch seeded after V6 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v7-critical-hash"
+  "last_completed": "v7-symlink-guard"
 }
