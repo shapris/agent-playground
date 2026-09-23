@@ -5,14 +5,18 @@ class FailureMemory:
     def __init__(self):
         self._failures = {}
 
+    @staticmethod
+    def _validate_fingerprint(fingerprint):
+        if not isinstance(fingerprint, str) or not fingerprint:
+            raise ValueError("fingerprint must be a non-empty string")
+        return fingerprint
+
     def record_failure(self, fingerprint, evidence):
-        key = str(fingerprint)
-        if not key:
-            raise ValueError("fingerprint must not be empty")
+        key = self._validate_fingerprint(fingerprint)
         self._failures[key] = str(evidence)
 
     def may_attempt(self, fingerprint, evidence):
-        key = str(fingerprint)
+        key = self._validate_fingerprint(fingerprint)
         if key not in self._failures:
             return True
         return self._failures[key] != str(evidence)
