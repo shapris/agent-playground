@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "active",
-  "index": 3,
+  "status": "complete",
+  "index": 4,
   "max_cycles": 4,
   "tasks": [
     {
@@ -68,6 +68,16 @@
       "details": {
         "schema": "PASS"
       }
+    },
+    {
+      "index": 3,
+      "task_id": "v7-queue-integrity",
+      "kind": "queue-integrity-recheck",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T04:01:56.456510+00:00",
+      "details": {
+        "verified_records": 3
+      }
     }
   ],
   "safety": [
@@ -78,5 +88,5 @@
     "stop after max_cycles"
   ],
   "note": "V7 bounded integrity batch seeded after V6 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v7-state-schema"
+  "last_completed": "v7-queue-integrity"
 }
