@@ -29,6 +29,15 @@ class MissionStateTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             state.transition("OBJ-X", "DONE")
 
+    def test_non_string_objective_identifier_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "objective identifiers"):
+            MissionState({1: "READY", "1": "BLOCKED"})
+
+    def test_non_string_lookup_identifier_is_rejected(self):
+        state = MissionState({"1": "READY"})
+        with self.assertRaisesRegex(ValueError, "objective identifiers"):
+            state.status(1)
+
 
 if __name__ == "__main__":
     unittest.main()
