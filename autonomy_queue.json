@@ -2,109 +2,18 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 6,
+  "status": "active",
+  "index": 0,
   "max_cycles": 6,
   "tasks": [
-    {
-      "id": "v8-race-guard",
-      "kind": "race-guard-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v8-continuity-seal",
-      "kind": "continuity-seal",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v8-critical-size",
-      "kind": "critical-size-bounds",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v8-encoding-profile",
-      "kind": "encoding-profile-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v8-probe-capability",
-      "kind": "probe-capability-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v8-exact-byte",
-      "kind": "exact-byte-recheck",
-      "expected_probe": "CI_PASS"
-    }
+    {"id":"v9-critical-hash","kind":"critical-hash-snapshot","expected_probe":"CI_PASS"},
+    {"id":"v9-symlink-guard","kind":"symlink-guard","expected_probe":"CI_PASS"},
+    {"id":"v9-probe-syntax","kind":"probe-syntax-recheck","expected_probe":"CI_PASS"},
+    {"id":"v9-state-schema","kind":"state-schema-recheck","expected_probe":"CI_PASS"},
+    {"id":"v9-queue-integrity","kind":"queue-integrity-recheck","expected_probe":"CI_PASS"},
+    {"id":"v9-probe-capability","kind":"probe-capability-recheck","expected_probe":"CI_PASS"}
   ],
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "v8-race-guard",
-      "kind": "race-guard-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:01:35.950540+00:00",
-      "details": {
-        "race_guard": "VERSION=3_RECOVERED"
-      }
-    },
-    {
-      "index": 1,
-      "task_id": "v8-continuity-seal",
-      "kind": "continuity-seal",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:01:55.422452+00:00",
-      "details": {
-        "probe_safe": true
-      }
-    },
-    {
-      "index": 2,
-      "task_id": "v8-critical-size",
-      "kind": "critical-size-bounds",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:02:17.085020+00:00",
-      "details": {
-        "bytes": {
-          "chat_mode_ci_probe.py": 63,
-          "exact_bytes_probe.py": 65,
-          "race_guard_probe.txt": 20,
-          "autonomy_queue.json": 1807,
-          "autonomy_state.json": 2213
-        }
-      }
-    },
-    {
-      "index": 3,
-      "task_id": "v8-encoding-profile",
-      "kind": "encoding-profile-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:02:36.179232+00:00",
-      "details": {
-        "profile": "BOM+CRLF exact / UTF8+LF probe"
-      }
-    },
-    {
-      "index": 4,
-      "task_id": "v8-probe-capability",
-      "kind": "probe-capability-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:02:56.955950+00:00",
-      "details": {
-        "capability": "PRINT_CONSTANTS_ONLY"
-      }
-    },
-    {
-      "index": 5,
-      "task_id": "v8-exact-byte",
-      "kind": "exact-byte-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T05:03:52.061318+00:00",
-      "details": {
-        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
-      }
-    }
-  ],
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -112,6 +21,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V8 deterministic hardening batch seeded after V7 4/4 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v8-exact-byte"
+  "note": "V9 bounded integrity batch seeded after V8 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task."
 }
