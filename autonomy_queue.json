@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "ready",
+  "status": "active",
   "index": 0,
   "max_cycles": 4,
   "tasks": [
@@ -31,5 +31,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V5 deterministic hardening batch seeded by the canonical background director after real schedule fallback was proven. No AI/model-credit task kinds; existing trusted catalog only."
+  "note": "V5 deterministic hardening batch activated after runtime validation proved trusted driver accepts active/complete, not ready. No AI/model-credit task kinds; existing trusted catalog only."
 }
