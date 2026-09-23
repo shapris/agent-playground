@@ -5,10 +5,13 @@
   "repository": "shapris/agent-playground",
   "branch": "chat-mode-ci-probe-20260922",
   "pull_request": 1,
-  "canonical_projects_locked": ["PUPIS_EVO", "JARVIS_FRESH"],
-  "status": "AWAITING_INDEPENDENT_VERIFIER",
-  "phase": "generative-coder-long-horizon-v1",
-  "last_verified_local": "2026-09-23T10:00:46+03:00",
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ],
+  "status": "PASS_GENERATIVE_CODER_AWAITING_VERIFIER_RECHECK",
+  "phase": "generative-coder-independent-repair-loop",
+  "last_verified_local": "2026-09-23T10:14:00+03:00",
   "invariants": [
     "never merge PR #1",
     "never touch canonical PUPIS_EVO without explicit owner authorization",
@@ -18,22 +21,57 @@
     "require CI/log evidence before claiming PASS"
   ],
   "evidence": {
-    "bounded_autonomy_driver": {"status":"COMPLETE","completed_cycles":6,"max_cycles":6,"hard_max_cycles":6,"last_task":"v9-probe-capability","last_verified_utc":"2026-09-23T06:04:57.535458+00:00"},
+    "bounded_autonomy_driver": {
+      "status": "COMPLETE",
+      "completed_cycles": 6,
+      "max_cycles": 6,
+      "hard_max_cycles": 6,
+      "last_task": "v9-probe-capability",
+      "last_verified_utc": "2026-09-23T06:04:57.535458+00:00"
+    },
     "generative_coder_v1": {
       "mission": "gen-coder-proof-v1",
-      "obj1": {"result":"PASS","generated_attempt_1":"FAIL","failure":"ready_tasks reverse lexical order","generated_repair_attempt_2":"PASS","cloud_ci_run":35828712226,"cloud_ci_job":107076122636,"cloud_tests":"3/3 PASS"},
-      "obj2": {"result":"PASS","cloud_ci_run":35829322431,"cloud_ci_job":107078044237,"head_sha":"95812dbf1c5094928ece2b25e986a6c40fdeb200"},
-      "obj3": {"result":"PASS","cloud_ci_run":35829398594,"cloud_ci_job":107078290580,"head_sha":"1667efb596d8912a1b791cfbbf66368579f4541f"},
-      "objectives_done": "3/3",
-      "verifier": "PENDING",
-      "overall_proven": false,
-      "director_mode": "single canonical Director; no new automations",
+      "objectives_done": 3,
+      "obj1_initial_fail": "reverse lexical order",
+      "obj1_repair_cloud_ci": 35828712226,
+      "obj2_cloud_ci": 35829322431,
+      "obj3_cloud_ci": 35829398594,
+      "first_independent_review": {
+        "pr": 38,
+        "reviewed_commit": "36b8047563acae3e3362e3b2547c48d9f0e5f7fb",
+        "result": "3 P2 findings",
+        "findings": [
+          "normalized task identifier collision",
+          "normalized objective identifier collision",
+          "empty fingerprint gate bypass"
+        ]
+      },
+      "post_review_repair_ci": {
+        "run_id": 35830430837,
+        "job_id": 107081509691,
+        "result": "PASS",
+        "tests": "16/16"
+      },
+      "re_review": {
+        "pr": 38,
+        "head": "ca5d9d94b7876949e0a053ce9e267c3c1d5b1b2d",
+        "status": "PENDING"
+      },
+      "local_free_model": {
+        "candidate": "Qwen2.5-Coder-0.5B-Instruct-GGUF",
+        "runtime_and_model_sha_verified": true,
+        "run_id": 35829094351,
+        "result": "CANCELLED_AFTER_10_MIN",
+        "likely_blocker": "llama-cli remained interactive; single-turn invocation still needs proof"
+      },
       "paid_ai_credits": false
     }
   },
   "next_actions": [
-    "obtain one independent verifier only through an already-enabled repository Code Review path that does not enable paid AI usage",
-    "do not declare overall mission PROVEN until independent verifier evidence exists",
-    "keep PR #1 open, draft, and unmerged"
+    "wait for Codex re-review of PR #38 current head and do not declare PROVEN before it",
+    "if re-review finds issues, record fingerprints, repair from review evidence, require new cloud CI, and re-review",
+    "if re-review is clean, mark generative coder minimal proof PROVEN and close verifier PR without merging",
+    "continue hardening trusted proposal validation/application separation",
+    "retry local free model only through a safe non-interactive single-turn path when tooling permits"
   ]
 }
