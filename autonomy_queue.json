@@ -2,109 +2,32 @@
   "schema": 1,
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
-  "status": "complete",
-  "index": 6,
-  "max_cycles": 6,
+  "status": "active",
+  "index": 0,
+  "max_cycles": 4,
   "tasks": [
     {
-      "id": "v6-race-guard",
-      "kind": "race-guard-recheck",
+      "id": "v7-critical-hash",
+      "kind": "critical-hash-snapshot",
       "expected_probe": "CI_PASS"
     },
     {
-      "id": "v6-continuity-seal",
-      "kind": "continuity-seal",
+      "id": "v7-symlink-guard",
+      "kind": "symlink-guard",
       "expected_probe": "CI_PASS"
     },
     {
-      "id": "v6-critical-size",
-      "kind": "critical-size-bounds",
+      "id": "v7-state-schema",
+      "kind": "state-schema-recheck",
       "expected_probe": "CI_PASS"
     },
     {
-      "id": "v6-encoding-profile",
-      "kind": "encoding-profile-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v6-probe-capability",
-      "kind": "probe-capability-recheck",
-      "expected_probe": "CI_PASS"
-    },
-    {
-      "id": "v6-exact-byte",
-      "kind": "exact-byte-recheck",
+      "id": "v7-queue-integrity",
+      "kind": "queue-integrity-recheck",
       "expected_probe": "CI_PASS"
     }
   ],
-  "evidence": [
-    {
-      "index": 0,
-      "task_id": "v6-race-guard",
-      "kind": "race-guard-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:00:30.887378+00:00",
-      "details": {
-        "race_guard": "VERSION=3_RECOVERED"
-      }
-    },
-    {
-      "index": 1,
-      "task_id": "v6-continuity-seal",
-      "kind": "continuity-seal",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:00:53.685990+00:00",
-      "details": {
-        "probe_safe": true
-      }
-    },
-    {
-      "index": 2,
-      "task_id": "v6-critical-size",
-      "kind": "critical-size-bounds",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:01:15.787234+00:00",
-      "details": {
-        "bytes": {
-          "chat_mode_ci_probe.py": 63,
-          "exact_bytes_probe.py": 65,
-          "race_guard_probe.txt": 20,
-          "autonomy_queue.json": 1806,
-          "autonomy_state.json": 4043
-        }
-      }
-    },
-    {
-      "index": 3,
-      "task_id": "v6-encoding-profile",
-      "kind": "encoding-profile-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:01:34.913523+00:00",
-      "details": {
-        "profile": "BOM+CRLF exact / UTF8+LF probe"
-      }
-    },
-    {
-      "index": 4,
-      "task_id": "v6-probe-capability",
-      "kind": "probe-capability-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:01:55.070798+00:00",
-      "details": {
-        "capability": "PRINT_CONSTANTS_ONLY"
-      }
-    },
-    {
-      "index": 5,
-      "task_id": "v6-exact-byte",
-      "kind": "exact-byte-recheck",
-      "result": "PASS",
-      "verified_at_utc": "2026-09-23T02:02:17.552231+00:00",
-      "details": {
-        "sha256": "83e4c6b38188ada77b4bd026ba0e3b06673d18755a96b714ff4914d4999711f6"
-      }
-    }
-  ],
+  "evidence": [],
   "safety": [
     "scratch branch only",
     "never merge PR #1",
@@ -112,6 +35,5 @@
     "never touch JARVIS_FRESH",
     "stop after max_cycles"
   ],
-  "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v6-exact-byte"
+  "note": "V7 bounded integrity batch seeded after V6 6/6 PASS. Existing trusted task catalog only; no AI/model-credit tasks. Runtime-validated contract: status=active and expected_probe=CI_PASS per task."
 }
