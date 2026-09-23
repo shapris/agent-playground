@@ -3,7 +3,7 @@
   "scope": "scratch-only",
   "branch": "chat-mode-ci-probe-20260922",
   "status": "active",
-  "index": 2,
+  "index": 3,
   "max_cycles": 6,
   "tasks": [
     {
@@ -57,6 +57,22 @@
       "details": {
         "probe_safe": true
       }
+    },
+    {
+      "index": 2,
+      "task_id": "v6-critical-size",
+      "kind": "critical-size-bounds",
+      "result": "PASS",
+      "verified_at_utc": "2026-09-23T02:01:15.787234+00:00",
+      "details": {
+        "bytes": {
+          "chat_mode_ci_probe.py": 63,
+          "exact_bytes_probe.py": 65,
+          "race_guard_probe.txt": 20,
+          "autonomy_queue.json": 1806,
+          "autonomy_state.json": 4043
+        }
+      }
     }
   ],
   "safety": [
@@ -67,5 +83,5 @@
     "stop after max_cycles"
   ],
   "note": "V6 deterministic complementary hardening batch. Existing trusted task catalog only; no AI/model-credit tasks. Seed uses runtime-validated contract: status=active and expected_probe=CI_PASS per task.",
-  "last_completed": "v6-continuity-seal"
+  "last_completed": "v6-critical-size"
 }

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "scope": "scratch-only",
+  "branch": "chat-mode-ci-probe-20260922",
+  "task": {
+    "index": 2,
+    "task_id": "v6-critical-size",
+    "kind": "critical-size-bounds",
+    "result": "PASS",
+    "verified_at_utc": "2026-09-23T02:01:15.787234+00:00",
+    "details": {
+      "bytes": {
+        "chat_mode_ci_probe.py": 63,
+        "exact_bytes_probe.py": 65,
+        "race_guard_probe.txt": 20,
+        "autonomy_queue.json": 1806,
+        "autonomy_state.json": 4043
+      }
+    }
+  },
+  "queue_index_after": 3,
+  "queue_status_after": "active",
+  "baseline_sha256": "c2e0e48535d7cf4b3eb68121b0322344889d1dfe251f79f7afe616826d877b7a"
+}
