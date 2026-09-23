@@ -24,7 +24,15 @@
         "generative_lab/tests/test_task_graph.py"
       ],
       "next_if_pass": "OBJ-2",
-      "next_if_fail": "repair same objective from real test log"
+      "next_if_fail": "repair same objective from real test log",
+      "cloud_verification": {
+        "workflow": "PUPIS Generative Scratch CI",
+        "run_id": 35828712226,
+        "job_id": 107076122636,
+        "result": "PASS",
+        "tests": "3/3",
+        "head_sha": "d605a3d758f8535b7f06fd86a47f8f9818f4557e"
+      }
     },
     {
       "id": "OBJ-2",
@@ -81,6 +89,14 @@
       "artifact": "generative_lab/workspace/task_graph.py",
       "tests": "generative_lab/tests/test_task_graph.py",
       "result": "PASS"
+    },
+    {
+      "objective_id": "OBJ-1",
+      "type": "cloud_ci",
+      "run_id": 35828712226,
+      "job_id": 107076122636,
+      "result": "PASS",
+      "tests": "3/3"
     }
   ],
   "stop_conditions": [
