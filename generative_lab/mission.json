@@ -2,30 +2,234 @@
   "schema": 1,
   "mission_id": "gen-coder-proof-v1",
   "mission": "Build a small dependency-aware task planner library from a high-level goal, prove generated implementation -> real FAIL -> generated repair -> PASS, then continue to later objectives without owner coordination.",
-  "status": "AWAITING_VERIFIER",
-  "budget": {"max_objectives": 3, "max_attempts_per_objective": 3, "max_files_per_attempt": 4, "max_total_bytes": 20000},
+  "status": "AWAITING_VERIFIER_RECHECK",
+  "budget": {
+    "max_objectives": 3,
+    "max_attempts_per_objective": 3,
+    "max_files_per_attempt": 4,
+    "max_total_bytes": 20000
+  },
   "objectives": [
-    {"id":"OBJ-1","status":"DONE","objective":"Implement a dependency graph with deterministic ready-task selection and cycle detection.","acceptance_criteria":["ready_tasks(done) returns lexicographically sorted tasks whose dependencies are satisfied","unknown completed task names do not change graph semantics","cycles raise ValueError with a useful message"],"allowed_paths":["generative_lab/workspace/task_graph.py","generative_lab/tests/test_task_graph.py"],"next_if_pass":"OBJ-2","next_if_fail":"repair same objective from real test log","cloud_verification":{"workflow":"PUPIS Generative Scratch CI","run_id":35828712226,"job_id":107076122636,"result":"PASS","tests":"3/3","head_sha":"d605a3d758f8535b7f06fd86a47f8f9818f4557e"}},
-    {"id":"OBJ-2","status":"DONE","objective":"Implement durable mission state with DONE/READY/BLOCKED transitions and JSON round-trip.","allowed_paths":["generative_lab/workspace/mission_state.py","generative_lab/tests/test_mission_state.py"],"next_if_pass":"OBJ-3","next_if_fail":"repair same objective from real test log","cloud_verification":{"workflow":"PUPIS Generative Scratch CI","run_id":35829322431,"job_id":107078044237,"result":"PASS","head_sha":"95812dbf1c5094928ece2b25e986a6c40fdeb200"}},
-    {"id":"OBJ-3","status":"DONE","objective":"Implement failure memory that prevents repeating a failed strategy fingerprint unless evidence changed.","allowed_paths":["generative_lab/workspace/failure_memory.py","generative_lab/tests/test_failure_memory.py"],"next_if_pass":"MISSION_DONE","next_if_fail":"repair same objective from real test log","cloud_verification":{"workflow":"PUPIS Generative Scratch CI","run_id":35829398594,"job_id":107078290580,"result":"PASS","head_sha":"1667efb596d8912a1b791cfbbf66368579f4541f"}}
+    {
+      "id": "OBJ-1",
+      "status": "DONE",
+      "objective": "Implement a dependency graph with deterministic ready-task selection and cycle detection.",
+      "acceptance_criteria": [
+        "ready_tasks(done) returns lexicographically sorted tasks whose dependencies are satisfied",
+        "unknown completed task names do not change graph semantics",
+        "cycles raise ValueError with a useful message"
+      ],
+      "allowed_paths": [
+        "generative_lab/workspace/task_graph.py",
+        "generative_lab/tests/test_task_graph.py"
+      ],
+      "next_if_pass": "OBJ-2",
+      "next_if_fail": "repair same objective from real test log",
+      "cloud_verification": {
+        "workflow": "PUPIS Generative Scratch CI",
+        "run_id": 35828712226,
+        "job_id": 107076122636,
+        "result": "PASS",
+        "tests": "3/3",
+        "head_sha": "d605a3d758f8535b7f06fd86a47f8f9818f4557e"
+      }
+    },
+    {
+      "id": "OBJ-2",
+      "status": "DONE",
+      "objective": "Implement durable mission state with DONE/READY/BLOCKED transitions and JSON round-trip.",
+      "allowed_paths": [
+        "generative_lab/workspace/mission_state.py",
+        "generative_lab/tests/test_mission_state.py"
+      ],
+      "next_if_pass": "OBJ-3",
+      "next_if_fail": "repair same objective from real test log",
+      "cloud_verification": {
+        "workflow": "PUPIS Generative Scratch CI",
+        "run_id": 35829322431,
+        "job_id": 107078044237,
+        "result": "PASS",
+        "head_sha": "95812dbf1c5094928ece2b25e986a6c40fdeb200"
+      }
+    },
+    {
+      "id": "OBJ-3",
+      "status": "DONE",
+      "objective": "Implement failure memory that prevents repeating a failed strategy fingerprint unless evidence changed.",
+      "allowed_paths": [
+        "generative_lab/workspace/failure_memory.py",
+        "generative_lab/tests/test_failure_memory.py"
+      ],
+      "next_if_pass": "MISSION_DONE",
+      "next_if_fail": "repair same objective from real test log",
+      "cloud_verification": {
+        "workflow": "PUPIS Generative Scratch CI",
+        "run_id": 35829398594,
+        "job_id": 107078290580,
+        "result": "PASS",
+        "head_sha": "1667efb596d8912a1b791cfbbf66368579f4541f"
+      }
+    }
   ],
   "current_objective": null,
-  "attempts":[
-    {"objective_id":"OBJ-1","attempt_id":"OBJ-1-A1","proposal_sha256":"1d2e03bb46ebbbeda89c002615f01b7ebcc7edd9cd0842f81702483b5099b869","result":"FAIL","evidence":"test_ready_tasks_are_lexicographically_sorted: ['lint', 'fetch'] != ['fetch', 'lint']"},
-    {"objective_id":"OBJ-1","attempt_id":"OBJ-1-A2","proposal_sha256":"9dd05bd673ae075cfd00b68d2422f242553dc80546f8e1b1ffc03058530c2346","result":"PASS","evidence":"3 unittest tests passed"},
-    {"objective_id":"OBJ-2","attempt_id":"OBJ-2-A1","proposal":"generative_proposals/gen-coder-proof-v1/obj-2-a1.json","result":"PASS","evidence":"GitHub Actions run 35829322431 job 107078044237 succeeded after generated implementation and acceptance tests commit 95812dbf1c5094928ece2b25e986a6c40fdeb200"},
-    {"objective_id":"OBJ-3","attempt_id":"OBJ-3-A1","proposal":"generative_proposals/gen-coder-proof-v1/obj-3-a1.json","result":"PASS","evidence":"GitHub Actions run 35829398594 job 107078290580 succeeded after generated implementation and acceptance tests commit 1667efb596d8912a1b791cfbbf66368579f4541f"}
+  "attempts": [
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A1",
+      "proposal_sha256": "1d2e03bb46ebbbeda89c002615f01b7ebcc7edd9cd0842f81702483b5099b869",
+      "result": "FAIL",
+      "evidence": "test_ready_tasks_are_lexicographically_sorted: ['lint', 'fetch'] != ['fetch', 'lint']"
+    },
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A2",
+      "proposal_sha256": "9dd05bd673ae075cfd00b68d2422f242553dc80546f8e1b1ffc03058530c2346",
+      "result": "PASS",
+      "evidence": "3 unittest tests passed"
+    },
+    {
+      "objective_id": "OBJ-2",
+      "attempt_id": "OBJ-2-A1",
+      "proposal": "generative_proposals/gen-coder-proof-v1/obj-2-a1.json",
+      "result": "PASS",
+      "evidence": "GitHub Actions run 35829322431 job 107078044237 succeeded after generated implementation and acceptance tests commit 95812dbf1c5094928ece2b25e986a6c40fdeb200"
+    },
+    {
+      "objective_id": "OBJ-3",
+      "attempt_id": "OBJ-3-A1",
+      "proposal": "generative_proposals/gen-coder-proof-v1/obj-3-a1.json",
+      "result": "PASS",
+      "evidence": "GitHub Actions run 35829398594 job 107078290580 succeeded after generated implementation and acceptance tests commit 1667efb596d8912a1b791cfbbf66368579f4541f"
+    },
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A3",
+      "proposal": "generative_proposals/gen-coder-proof-v1/obj-1-a3.json",
+      "result": "PASS",
+      "evidence": "Codex P2 normalized task identifier collision repaired; cloud CI run 35830213202 passed."
+    },
+    {
+      "objective_id": "OBJ-2",
+      "attempt_id": "OBJ-2-A2",
+      "proposal": "generative_proposals/gen-coder-proof-v1/obj-2-a2.json",
+      "result": "PASS",
+      "evidence": "Codex P2 normalized objective identifier collision repaired; cloud CI run 35830331438 passed."
+    },
+    {
+      "objective_id": "OBJ-3",
+      "attempt_id": "OBJ-3-A2",
+      "proposal": "generative_proposals/gen-coder-proof-v1/obj-3-a2.json",
+      "result": "PASS",
+      "evidence": "Codex P2 empty fingerprint gate bypass repaired; cloud CI run 35830430837 passed 16/16 tests."
+    }
   ],
-  "failures":[{"objective_id":"OBJ-1","attempt_id":"OBJ-1-A1","fingerprint":"reverse-lexicographic-ready-order","root_cause":"ready_tasks used reverse=True","do_not_repeat":true}],
-  "evidence":[
-    {"objective_id":"OBJ-1","artifact":"generative_lab/workspace/task_graph.py","tests":"generative_lab/tests/test_task_graph.py","result":"PASS"},
-    {"objective_id":"OBJ-1","type":"cloud_ci","run_id":35828712226,"job_id":107076122636,"result":"PASS","tests":"3/3"},
-    {"objective_id":"OBJ-2","artifact":"generative_lab/workspace/mission_state.py","tests":"generative_lab/tests/test_mission_state.py","result":"PASS"},
-    {"objective_id":"OBJ-2","type":"cloud_ci","run_id":35829322431,"job_id":107078044237,"head_sha":"95812dbf1c5094928ece2b25e986a6c40fdeb200","result":"PASS"},
-    {"objective_id":"OBJ-3","artifact":"generative_lab/workspace/failure_memory.py","tests":"generative_lab/tests/test_failure_memory.py","result":"PASS"},
-    {"objective_id":"OBJ-3","type":"cloud_ci","run_id":35829398594,"job_id":107078290580,"head_sha":"1667efb596d8912a1b791cfbbf66368579f4541f","result":"PASS"}
+  "failures": [
+    {
+      "objective_id": "OBJ-1",
+      "attempt_id": "OBJ-1-A1",
+      "fingerprint": "reverse-lexicographic-ready-order",
+      "root_cause": "ready_tasks used reverse=True",
+      "do_not_repeat": true
+    },
+    {
+      "objective_id": "OBJ-1",
+      "source": "independent_verifier",
+      "fingerprint": "normalized-task-identifier-collision",
+      "root_cause": "task/dependency IDs were silently string-normalized",
+      "do_not_repeat": true
+    },
+    {
+      "objective_id": "OBJ-2",
+      "source": "independent_verifier",
+      "fingerprint": "normalized-objective-identifier-collision",
+      "root_cause": "objective IDs were silently string-normalized",
+      "do_not_repeat": true
+    },
+    {
+      "objective_id": "OBJ-3",
+      "source": "independent_verifier",
+      "fingerprint": "empty-fingerprint-gate-bypass",
+      "root_cause": "may_attempt accepted an empty fingerprint while record_failure rejected it",
+      "do_not_repeat": true
+    }
   ],
-  "verifier": {"status":"PENDING","reason":"All three objectives have real cloud CI PASS evidence, but no already-enabled independent free Code Review verifier is currently evidenced on PR #1. No paid AI review was invoked."},
-  "stop_conditions":["3 objectives DONE","attempt budget exhausted","safety gate failure"],
-  "canonical_projects_locked":["PUPIS_EVO","JARVIS_FRESH"]
+  "evidence": [
+    {
+      "objective_id": "OBJ-1",
+      "artifact": "generative_lab/workspace/task_graph.py",
+      "tests": "generative_lab/tests/test_task_graph.py",
+      "result": "PASS"
+    },
+    {
+      "objective_id": "OBJ-1",
+      "type": "cloud_ci",
+      "run_id": 35828712226,
+      "job_id": 107076122636,
+      "result": "PASS",
+      "tests": "3/3"
+    },
+    {
+      "objective_id": "OBJ-2",
+      "artifact": "generative_lab/workspace/mission_state.py",
+      "tests": "generative_lab/tests/test_mission_state.py",
+      "result": "PASS"
+    },
+    {
+      "objective_id": "OBJ-2",
+      "type": "cloud_ci",
+      "run_id": 35829322431,
+      "job_id": 107078044237,
+      "head_sha": "95812dbf1c5094928ece2b25e986a6c40fdeb200",
+      "result": "PASS"
+    },
+    {
+      "objective_id": "OBJ-3",
+      "artifact": "generative_lab/workspace/failure_memory.py",
+      "tests": "generative_lab/tests/test_failure_memory.py",
+      "result": "PASS"
+    },
+    {
+      "objective_id": "OBJ-3",
+      "type": "cloud_ci",
+      "run_id": 35829398594,
+      "job_id": 107078290580,
+      "head_sha": "1667efb596d8912a1b791cfbbf66368579f4541f",
+      "result": "PASS"
+    },
+    {
+      "type": "verifier_review",
+      "pr": 38,
+      "review_id": "PRR_kwDOSy_H_c8AAAABOy8KeA",
+      "reviewed_commit": "36b8047563acae3e3362e3b2547c48d9f0e5f7fb",
+      "result": "ISSUES_FOUND",
+      "findings": 3,
+      "severity": "P2"
+    },
+    {
+      "type": "post_verifier_repair_ci",
+      "run_id": 35830430837,
+      "job_id": 107081509691,
+      "result": "PASS",
+      "tests": "16/16"
+    }
+  ],
+  "verifier": {
+    "status": "RECHECK_REQUIRED",
+    "pr": 38,
+    "first_review_id": "PRR_kwDOSy_H_c8AAAABOy8KeA",
+    "first_review_findings": 3,
+    "repaired_ci_run": 35830430837,
+    "repaired_ci_job": 107081509691,
+    "repaired_tests": "16/16 PASS",
+    "reason": "Independent verifier found three P2 issues; all were repaired and passed cloud CI. Awaiting review of repaired commit."
+  },
+  "stop_conditions": [
+    "3 objectives DONE",
+    "attempt budget exhausted",
+    "safety gate failure"
+  ],
+  "canonical_projects_locked": [
+    "PUPIS_EVO",
+    "JARVIS_FRESH"
+  ]
 }
