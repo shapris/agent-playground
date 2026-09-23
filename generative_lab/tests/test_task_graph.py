@@ -26,6 +26,14 @@ class TaskGraphTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cycle"):
             TaskGraph({"a": {"b"}, "b": {"a"}})
 
+    def test_non_string_task_identifier_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "task identifiers"):
+            TaskGraph({1: set(), "1": {"x"}})
+
+    def test_non_string_dependency_identifier_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "dependency identifiers"):
+            TaskGraph({"a": {1}})
+
 
 if __name__ == "__main__":
     unittest.main()
