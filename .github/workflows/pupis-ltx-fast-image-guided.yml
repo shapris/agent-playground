@@ -1,0 +1,40 @@
+name: PUPIS - Original character to moving LTX Fast I2V, 0 EUR
+on:
+  push:
+    branches:
+      - pupis-shorts-cloud-video-20261027
+    paths:
+      - '.github/workflows/pupis-ltx-fast-image-guided.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-action-shot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install free runtime and media decoding
+        run: python -m pip install --disable-pip-version-check requests pillow av
+      - name: Retrieve confirmed original illustrated character image
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p cloud-film/output
+          gh run download 40580882436 --repo shapris/agent-playground \
+            --name PUPIS-cinematic-original-FLUX-and-WAN-video --dir cloud-film/output
+          test -s cloud-film/output/first_frame.png
+      - name: Animate one real consistent character on a public free ZeroGPU server
+        run: python experiments/ltx_fast_image_to_video.py
+      - name: Archive original independent video QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-free-LTX-Fast-image-guided-actual-3s
+          path: |
+            cloud-film/output/PUPIS_LTX_FAST_IMAGE_GUIDED_3S.mp4
+            cloud-film/output/LTX_FAST_I2V_STATUS.json
+            cloud-film/output/LTX_FAST_IMAGE_GUIDED_REAL_FRAMES.png
+          if-no-files-found: warn
+          retention-days: 7
