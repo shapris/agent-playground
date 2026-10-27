@@ -58,7 +58,7 @@ def boxer(d,x,y,color,skin,face=1,punch=0,duck=0,protect=0,sway=0):
     ex=headx+face*20
     d.line([pt(ex-face*8,heady-14),pt(ex+face*15,heady-19-duck*5)],fill="#0a1020",width=6)
     d.ellipse((ex-3,heady-12,ex+4,heady-4),fill="#0a1020")
-    d.arc((headx-9,heady-1,headx+face*31,heady+22),20,150,fill="#0a1020",width=4)
+    d.arc((min(headx-9,headx+face*31),heady-1,max(headx-9,headx+face*31),heady+22),20,150,fill="#0a1020",width=4)
     shoulder=(x+face*32,chesty-10)
     # rear defensive glove at near face, always alive with duck timing
     rear_elbow=(x-face*42,chesty+15+duck*13)
