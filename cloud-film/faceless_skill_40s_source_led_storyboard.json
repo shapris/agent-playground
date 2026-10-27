@@ -1,0 +1,119 @@
+{
+  "genre": "storytelling",
+  "description": "PUPIS SHORTS; 40s; LT; 9:16; original illustrated scene reconstruction (not real fight footage). Uncreated asset references are PLAN only; visual licensing/owner gate remains BLOCKED.",
+  "sources": [
+    "https://stats.uniquetma.com/fightcard/21/prelims",
+    "https://www.lrt.lt/naujienos/sportas/10/3092130/utma-vilniuje-salkovskis-ir-gedminas-dominavo-pastarasis-iskviete-stanioni-ir-dirksti",
+    "https://www.tv3.lt/naujiena/sportas/stanionis-ir-dirkstys-atsikirto-gedminui-iveike-misiuna-ir-sustriakas-jau-pi-n1562603"
+  ],
+  "through_line": {
+    "name": "Iššūkio pirštinė",
+    "asset": "refs/challenge-glove-PLANNED.png",
+    "progression": "Iš pergalės į du kvietimus bei viešus atsakymus",
+    "resolution": "Kovų sutartys nepatvirtintos; istorija lieka atvira"
+  },
+  "cast": [
+    {
+      "name": "Gedminas",
+      "asset": "refs/gedminas-symbolic-PLANNED.png"
+    },
+    {
+      "name": "Stanionis",
+      "asset": "refs/stanionis-symbolic-PLANNED.png"
+    },
+    {
+      "name": "Dirkstys",
+      "asset": "refs/dirkstys-symbolic-PLANNED.png"
+    }
+  ],
+  "arc": {
+    "hook": 1,
+    "build": [
+      2
+    ],
+    "turn": 3,
+    "payoff": 4
+  },
+  "blocks": [
+    {
+      "n": 1,
+      "arc_role": "hook",
+      "vo_line": "Viena pergalė ir du garsūs iššūkiai sukėlė netikėtas reakcijas. Po UTMA turnyro kovinio sporto pasaulyje prasidėjo vieša intriga, kuri nesibaigė ringe.",
+      "location": "Ringo prieigos koridorius",
+      "through_line_state": "Vienas iššūkio simbolis pasirodo",
+      "shots": [
+        "WIDE: piešta UTMA įkvėpta, bet ne tikro renginio imitacija, arena ir simbolinis nugalėtojo siluetas.",
+        "CU: pirštinės odos tekstūra, simbolinio kovotojo delnas įsitempia.",
+        "MEDIUM: simbolinis Gedminas po kovos pasisuka į ryškią arenos šviesą.",
+        "DETAIL: teisėjų sprendimo simbolinis lapas be išgalvotų skaičių ar logotipų.",
+        "OVERHEAD: komiksinis ringas iš viršaus, kadro centre ima ryškėti iššūkio ženklas."
+      ],
+      "assets_used": [
+        "refs/challenge-glove-PLANNED.png",
+        "refs/gedminas-symbolic-PLANNED.png",
+        "refs/stanionis-symbolic-PLANNED.png",
+        "refs/dirkstys-symbolic-PLANNED.png"
+      ]
+    },
+    {
+      "n": 2,
+      "arc_role": "build",
+      "vo_line": "Spalio dvidešimt ketvirtąją Mindaugas Gedminas po trijų raundų vienbalsiu teisėjų sprendimu įveikė Arnoldą Misiūną. Tuomet, dar ringe, paskelbė netikėtą kvietimą.",
+      "location": "Po kovos ringo vidurys",
+      "through_line_state": "Simbolis jungiasi su patvirtintu pergalės faktu",
+      "shots": [
+        "MEDIUM: nupieštas Gedminas kelia ranką po patvirtintos pergalės.",
+        "ECU: teisėjo pirštai pakelia simbolinio nugalėtojo riešą.",
+        "WIDE: arena iš ringo kampo, plazda originaliai sukurti popieriniai energijos efektai.",
+        "DETAIL: komiksiniame kalendoriuje įsižiebia spalio dvidešimt ketvirtoji.",
+        "CU: simbolinis sportininkas pasilenkia prie mikrofono, kalbėjimas neatkuriamas kaip tikras įrašas."
+      ],
+      "assets_used": [
+        "refs/challenge-glove-PLANNED.png",
+        "refs/gedminas-symbolic-PLANNED.png",
+        "refs/stanionis-symbolic-PLANNED.png",
+        "refs/dirkstys-symbolic-PLANNED.png"
+      ]
+    },
+    {
+      "n": 3,
+      "arc_role": "turn",
+      "vo_line": "Gedminas pasiūlė Eimantui Stanioniui šešių raundų bokso susitikimą ir iškvietė Dominyką Dirkstį. Stanionis sureagavo jaustukais, o Dirkstys atsakė ironiškai viešai.",
+      "location": "Komiksinė reakcijų galerija",
+      "through_line_state": "Du atsakymai išskaido simbolį į skirtingas puses",
+      "shots": [
+        "WIDE: du skirtingi originalūs komiksiniai Stanionis ir Dirkstys personažai atskiruose langeliuose.",
+        "CU: išraiškingas simbolinio Stanionis personažo žvilgsnis į telefoną, jokios realaus įrašo kopijos.",
+        "MEDIUM: stilizuotas Dirkstys su ironijos gestu, jokios išgalvotos tiesioginės citatos.",
+        "DETAIL: autorių sukurti emocijų ženklai pasirodo vienas po kito.",
+        "OVERHEAD: galerijos trys kortelės sudėliojamos į neužbaigtą iššūkio simbolį."
+      ],
+      "assets_used": [
+        "refs/challenge-glove-PLANNED.png",
+        "refs/gedminas-symbolic-PLANNED.png",
+        "refs/stanionis-symbolic-PLANNED.png",
+        "refs/dirkstys-symbolic-PLANNED.png"
+      ]
+    },
+    {
+      "n": 4,
+      "arc_role": "payoff",
+      "vo_line": "Gedminas paaiškino gerbiantis Stanionį ir siekiantis sportinio išbandymo. Tačiau jokios naujos kovų sutartys kol kas nepatvirtintos, todėl intriga tik prasideda.",
+      "location": "Komiksinė laukimo scena",
+      "through_line_state": "Neįvykusios kovos simbolis lieka atviras",
+      "shots": [
+        "WIDE: apšviestas, bet dar tuščias ringas rodo neužtikrintą kovos ateitį.",
+        "CU: simbolinio Gedminas personažo atsitraukianti pirštinė.",
+        "MEDIUM: Stanionis ir Dirkstys simboliniai siluetai stovi nutolę nuo ringo.",
+        "DETAIL: tuščia nepasirašyta sutartis be tikros teisinės formos.",
+        "OVERHEAD: iššūkio simbolis lieka pakibęs virš neužimtos arenos."
+      ],
+      "assets_used": [
+        "refs/challenge-glove-PLANNED.png",
+        "refs/gedminas-symbolic-PLANNED.png",
+        "refs/stanionis-symbolic-PLANNED.png",
+        "refs/dirkstys-symbolic-PLANNED.png"
+      ]
+    }
+  ]
+}
