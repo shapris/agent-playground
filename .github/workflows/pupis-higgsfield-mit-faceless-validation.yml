@@ -35,7 +35,7 @@ jobs:
       - name: Assert receipt does not imply generated video or publishing license
         run: |
           test -s cloud-film/validated/validation.json
-          python3 -c "import json,pathlib; f=pathlib.Path('cloud-film/validated/validation.json'); print('VALIDATOR_REAL_SCRIPT_RESULT: ',f.read_text()[:850]); assert 'error' not in f.read_text().lower();"
+          python3 -c "import json,pathlib; f=pathlib.Path('cloud-film/validated/validation.json'); x=json.loads(f.read_text()); print('VALIDATOR_REAL_SCRIPT_RESULT:',x); assert x['valid'] and not x['errors'] and not x['invalid_blocks'] and x['block_count']==4"
       - name: Export one factual production validation receipt
         if: always()
         uses: actions/upload-artifact@v4
