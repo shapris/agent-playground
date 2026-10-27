@@ -1,0 +1,43 @@
+name: PUPIS SHORTS - 0 EUR Cloud Animation Proof
+on:
+  push:
+    branches:
+      - pupis-shorts-cloud-video-20261027
+    paths:
+      - 'cloud-film/**'
+      - '.github/workflows/pupis-shorts-cloud-video.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pupis-shorts-cloud-video-proof
+  cancel-in-progress: false
+jobs:
+  render:
+    name: Generate original animation in GitHub cloud (no user PC)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout isolated cloud animation branch
+        uses: actions/checkout@v4
+      - name: Install free CPU renderer dependencies
+        run: |
+          python -m pip install --disable-pip-version-check pillow requests
+          command -v ffmpeg || sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Original 2D moving character and original SFX
+        run: python cloud-film/render.py
+      - name: Optional one public ZeroGPU Wan2.2 image-to-video request
+        continue-on-error: true
+        run: python cloud-film/try_wan_zerogpu.py
+      - name: Technical ffprobe
+        run: |
+          ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,codec_type,width,height -of json cloud-film/output/PUPIS_CLOUD_PUPPET_TEST.mp4
+          test -s cloud-film/output/WAN_TRIAL_STATUS.json
+      - name: Downloadable results (private artifacts of public test repo run)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-SHORTS-free-cloud-animation-proof
+          path: cloud-film/output/*
+          if-no-files-found: error
+          retention-days: 7
