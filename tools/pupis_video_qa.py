@@ -5,6 +5,7 @@ Does NOT certify subjective art, does NOT publish, never enables billing.
 import argparse
 import json
 import subprocess
+import shutil
 from pathlib import Path
 from fractions import Fraction
 
@@ -15,11 +16,24 @@ MIN_DURATION=30.0
 MAX_DURATION=60.0
 
 def ffprobe(path):
-    cmd=['ffprobe','-v','error','-show_entries',
-         'format=duration,size:stream=codec_name,codec_type,width,height,r_frame_rate',
-         '-of','json',str(path)]
-    p=subprocess.run(cmd,capture_output=True,text=True,timeout=30,check=True)
-    return json.loads(p.stdout)
+    # Portable when runner images do not contain ffprobe.
+    if shutil.which('ffprobe'):
+        cmd=['ffprobe','-v','error','-show_entries',
+             'format=duration,size:stream=codec_name,codec_type,width,height,r_frame_rate',
+             '-of','json',str(path)]
+        p=subprocess.run(cmd,capture_output=True,text=True,timeout=30,check=True)
+        return json.loads(p.stdout)
+    import av
+    with av.open(str(path)) as container:
+        streams=[]
+        for item in container.streams:
+            c=item.codec_context
+            streams.append({'codec_type':item.type,'codec_name':c.name,
+                            'width':int(getattr(c,'width',0) or 0),
+                            'height':int(getattr(c,'height',0) or 0),
+                            'r_frame_rate':str(item.average_rate or item.base_rate or '0/1')})
+        duration=(container.duration or 0)/av.time_base
+        return {'format':{'duration':duration},'streams':streams}
 
 def analyze(probe,evidence):
     streams=probe.get('streams') or []
