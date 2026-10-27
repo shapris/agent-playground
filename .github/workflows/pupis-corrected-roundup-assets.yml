@@ -1,0 +1,29 @@
+name: PUPIS - Correct Lithuanian narration and licensed fighter photo
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths: ['.github/workflows/pupis-corrected-roundup-assets.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  corrected-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Free Lithuanian voice tools
+        run: python -m pip install --disable-pip-version-check "piper-tts==1.8.0" "huggingface_hub>=0.24,<2" numpy
+      - name: Generate 6 corrected narrations and retrieve genuine photo with license record
+        run: python cloud-film/roundup_corrections_20261028.py
+      - name: Archive real voice and rights proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-corrected-20261028-real-fighter-and-LT-voice
+          path: cloud-film/output/roundup_corrected/*
+          if-no-files-found: error
+          retention-days: 7
