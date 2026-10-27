@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
   actions: read
+concurrency:
+  group: pupis-real-quality-gate-cloud
+  cancel-in-progress: true
 jobs:
   quality-regression:
     name: Verify all 7 skills tests and reject the owner's bad 42s film
@@ -21,10 +24,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify QA skill unit tests
         run: python -m unittest discover -s tools/tests -p test_pupis_video_qa.py -v
-      - name: Ensure FFmpeg and ffprobe are available on the cloud runner
-        run: |
-          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
-          command -v ffprobe
+      - name: Install portable media inspector with bundled codecs (no apt)
+        run: python -m pip install --disable-pip-version-check --only-binary=:all: av
       - name: Download the EXACT old rejected real MP4 (no synthetic pass)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -33,7 +34,6 @@ jobs:
           gh run download 40574937090 --repo shapris/agent-playground \
             --name PUPIS-SHORTS-cloud-LT-animated-report-prototype --dir media
           test -s media/PUPIS_SHORTS_CLOUD_2D_NEWS_OWNER_REVIEW.mp4
-          ffprobe -v error -show_entries format=duration -of default=nw=1 media/PUPIS_SHORTS_CLOUD_2D_NEWS_OWNER_REVIEW.mp4
       - name: Real-film regression MUST reject low-quality video
         run: |
           python tools/pupis_video_qa.py \
