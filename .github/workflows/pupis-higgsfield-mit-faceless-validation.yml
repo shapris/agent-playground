@@ -1,0 +1,48 @@
+name: PUPIS - Test open Higgsfield faceless script skill without paid generation
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths:
+      - 'cloud-film/faceless_skill_40s_source_led_storyboard.json'
+      - '.github/workflows/pupis-higgsfield-mit-faceless-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned open-source MIT Higgsfield Faceless Skill (NO Higgsfield account or paid backend)
+        run: |
+          git clone --quiet --depth=1 https://github.com/higgsfield-ai/skills.git /tmp/higgsfield-skills
+          cd /tmp/higgsfield-skills
+          git fetch --quiet --depth=1 origin 4d0757471a704dac8729ea3c2ef0f3f330e0d9b6
+          git checkout --quiet 4d0757471a704dac8729ea3c2ef0f3f330e0d9b6
+          grep -q 'MIT License' LICENSE
+      - name: Actual Higgsfield quality validator on original Lithuanian 40s storyboard
+        run: |
+          mkdir -p cloud-film/validated
+          set +e
+          python3 /tmp/higgsfield-skills/higgsfield-faceless-video/scripts/validate_motion_script.py \
+            --script cloud-film/faceless_skill_40s_source_led_storyboard.json \
+            --duration-seconds 40 > cloud-film/validated/validation.json 2>&1
+          result=$?
+          set -e
+          cat cloud-film/validated/validation.json
+          test "$result" -eq 0
+      - name: Assert receipt does not imply generated video or publishing license
+        run: |
+          test -s cloud-film/validated/validation.json
+          python3 -c "import json,pathlib; f=pathlib.Path('cloud-film/validated/validation.json'); print('VALIDATOR_REAL_SCRIPT_RESULT: ',f.read_text()[:850]); assert 'error' not in f.read_text().lower();"
+      - name: Export one factual production validation receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-free-Higgsfield-MIT-script-validator-evidence
+          path: |
+            cloud-film/validated/*
+            cloud-film/faceless_skill_40s_source_led_storyboard.json
+          if-no-files-found: warn
+          retention-days: 7
