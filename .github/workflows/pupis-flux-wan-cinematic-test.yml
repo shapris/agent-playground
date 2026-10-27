@@ -1,0 +1,39 @@
+name: PUPIS 0 EUR - Professional AI image to real moving 3s scene
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths:
+      - '.github/workflows/pupis-flux-wan-cinematic-test.yml'
+      - 'cloud-film/flux_keyframe.py'
+      - 'cloud-film/try_wan_zerogpu.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cinematic-3s:
+    name: Real FLUX character design -> WAN real animation (zero paid APIs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install free image inspection only
+        run: python -m pip install --disable-pip-version-check pillow requests
+      - name: Generate cinematic original FLUX.2 keyframe remotely
+        run: python cloud-film/flux_keyframe.py
+      - name: Animate that REAL Flux frame with free public Wan ZeroGPU
+        run: python cloud-film/try_wan_zerogpu.py
+      - name: Reject any unverified Wan success
+        run: |
+          python -c "import json, pathlib; x=json.loads(pathlib.Path('cloud-film/output/FLUX_STATUS.json').read_text()); y=json.loads(pathlib.Path('cloud-film/output/WAN_TRIAL_STATUS.json').read_text()); assert x['success'] and y['model_proved'], (x,y); assert pathlib.Path('cloud-film/output/PUPIS_WAN_ZERO_GPU_3S.mp4').stat().st_size>50000; print('CINEMATIC_FLUX_TO_WAN_PASS')"
+      - name: Export actual independent visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-cinematic-original-FLUX-and-WAN-video
+          path: |
+            cloud-film/output/first_frame.png
+            cloud-film/output/FLUX_STATUS.json
+            cloud-film/output/WAN_TRIAL_STATUS.json
+            cloud-film/output/PUPIS_WAN_ZERO_GPU_3S.mp4
+          if-no-files-found: warn
+          retention-days: 7
