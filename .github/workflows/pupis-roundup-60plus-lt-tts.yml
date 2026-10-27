@@ -1,0 +1,32 @@
+name: PUPIS - 60plus sec LT combat news narrated voice for film
+on:
+  push:
+    branches:
+      - pupis-shorts-cloud-video-20261027
+    paths:
+      - '.github/workflows/pupis-roundup-60plus-lt-tts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  narration:
+    name: Six verifiable news audio sections; actual total >59 seconds
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install entirely free Lithuanian TTS libraries
+        run: python -m pip install --disable-pip-version-check "piper-tts==1.8.0" "huggingface_hub>=0.24,<2" numpy
+      - name: Generate six distinct Lithuanian WAV sections and real duration evidence
+        run: python cloud-film/roundup_lt_tts_20261027.py
+      - name: Preserve voices and manifest for external story-led montage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-20261027-real-LT-60plus-voice-six-sections
+          path: cloud-film/output/roundup_20261027/*
+          if-no-files-found: error
+          retention-days: 7
