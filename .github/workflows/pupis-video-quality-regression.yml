@@ -1,0 +1,47 @@
+name: PUPIS - Real video quality skill regression
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths:
+      - '.github/skills/pupis-video-director/**'
+      - '.github/workflows/pupis-video-quality-regression.yml'
+      - 'tools/pupis_video_qa.py'
+      - 'tools/fixtures/rejected_002_v2.json'
+      - 'tools/tests/test_pupis_video_qa.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  quality-regression:
+    name: Verify all 7 skills tests and reject the owner's bad 42s film
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify QA skill unit tests
+        run: python -m unittest discover -s tools/tests -p test_pupis_video_qa.py -v
+      - name: Download the EXACT old rejected real MP4 (no synthetic pass)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p media
+          gh run download 40574937090 --repo shapris/agent-playground \
+            --name PUPIS-SHORTS-cloud-LT-animated-report-prototype --dir media
+          test -s media/PUPIS_SHORTS_CLOUD_2D_NEWS_OWNER_REVIEW.mp4
+          ffprobe -v error -show_entries format=duration -of default=nw=1 media/PUPIS_SHORTS_CLOUD_2D_NEWS_OWNER_REVIEW.mp4
+      - name: Real-film regression MUST reject low-quality video
+        run: |
+          python tools/pupis_video_qa.py \
+            --video media/PUPIS_SHORTS_CLOUD_2D_NEWS_OWNER_REVIEW.mp4 \
+            --evidence tools/fixtures/rejected_002_v2.json \
+            --output quality_regression.json --expect REJECTED
+          python -c "import json; x=json.load(open('quality_regression.json')); assert not x['publish_approved'] and x['number_of_failures']>=6; print('BLOCKING_IS_REAL')"
+      - name: Evidence for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-video-quality-skill-regression-evidence
+          path: quality_regression.json
+          if-no-files-found: warn
+          retention-days: 7
