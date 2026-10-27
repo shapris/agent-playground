@@ -1,0 +1,52 @@
+name: PUPIS 0 EUR - Two true AI moving action shots (6 sec)
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths:
+      - '.github/workflows/pupis-second-beat-6s.yml'
+      - 'cloud-film/wan_second_beat.py'
+      - 'cloud-film/mux_second_beat.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  action-scenes:
+    name: Original FLUX-character -> 2 Wan animations -> fully verified 6 sec MP4
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install free CPU-only tools
+        run: python -m pip install --disable-pip-version-check requests av imageio-ffmpeg
+      - name: Reuse verified cinematic source and original first AI video
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p cloud-film/output
+          gh run download 40580882436 --repo shapris/agent-playground --name PUPIS-cinematic-original-FLUX-and-WAN-video --dir cloud-film/output
+          test -s cloud-film/output/first_frame.png
+          test -s cloud-film/output/PUPIS_WAN_ZERO_GPU_3S.mp4
+      - name: Free public Wan creates second genuinely moving boxing beat
+        run: python cloud-film/wan_second_beat.py
+      - name: Original six-second cinematic video and SFX without still fillers
+        run: python cloud-film/mux_second_beat.py
+      - name: Assert both AI generations and full encoded 6-second MP4
+        run: |
+          python -c "import json,pathlib; p=pathlib.Path('cloud-film/output/'); a=json.loads((p/'WAN_TRIAL_STATUS.json').read_text()); b=json.loads((p/'SECOND_BEAT_STATUS.json').read_text()); c=json.loads((p/'TWO_BEAT_STATUS.json').read_text()); assert a['model_proved'] and b['model_proved'] and c['both_real_AI_generated_clips'] and 5.9<c['duration']<6.5; print('SIX_SECONDS_OF_TWO_REAL_AI_SCENES_PASS')"
+      - name: Archive actual original AI scenes and six-second MP4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-cinematic-2-real-WAN-shots-6s
+          path: |
+            cloud-film/output/first_frame.png
+            cloud-film/output/PUPIS_WAN_ZERO_GPU_3S.mp4
+            cloud-film/output/PUPIS_WAN_SECOND_BEAT_3S.mp4
+            cloud-film/output/PUPIS_CINEMATIC_2_ACTIONS_6S.mp4
+            cloud-film/output/handmade_boxing_fx.wav
+            cloud-film/output/WAN_TRIAL_STATUS.json
+            cloud-film/output/SECOND_BEAT_STATUS.json
+            cloud-film/output/TWO_BEAT_STATUS.json
+          if-no-files-found: warn
+          retention-days: 7
