@@ -1,0 +1,31 @@
+name: PUPIS - Independent QA of actual new LTX Fast Free Video
+on:
+  push:
+    branches:
+      - pupis-shorts-cloud-video-20261027
+    paths:
+      - '.github/workflows/pupis-ltx-fast-original-recovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up free Python dependencies
+        run: python -m pip install --disable-pip-version-check av pillow
+      - name: Download original real ZeroGPU animation; verify full decode and five images
+        run: python cloud-film/collect_ltx_fast_result.py
+      - name: Preserve original MP4, factual metadata, and visible frame evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-LTX-FAST-NEW-ORIGINAL-VIDEO-QA
+          path: |
+            cloud-film/output/PUPIS_LTX_FAST_ORIGINAL_2S_20261027.mp4
+            cloud-film/output/LTX_FAST_REAL_QA.json
+            cloud-film/output/LTX_FAST_REAL_FRAMES_QA.png
+          if-no-files-found: warn
+          retention-days: 7
