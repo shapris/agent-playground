@@ -3,6 +3,8 @@ No fake stretch, looping or still-image filler. Media is a private OWNER REVIEW
 prototype only, not a real UTMA fight and never published automatically.
 """
 import json,subprocess,wave,math,random
+import av
+import imageio_ffmpeg
 from pathlib import Path
 BASE=Path(__file__).resolve().parent
 OUT=BASE/"output"
@@ -11,10 +13,12 @@ B=OUT/"PUPIS_WAN_SECOND_BEAT_3S.mp4"
 assert A.stat().st_size>50000 and B.stat().st_size>50000
 
 def metadata(f):
-    r=subprocess.run(["ffprobe","-v","error","-show_entries",
-        "format=duration:stream=width,height,r_frame_rate,codec_type",
-        "-of","json",str(f)],capture_output=True,text=True,check=True,timeout=15)
-    return json.loads(r.stdout)
+    with av.open(str(f)) as container:
+        stream=next(s for s in container.streams if s.type=="video")
+        return {"format":{"duration":round((container.duration or 0)/av.time_base,5)},
+                "streams":[{"codec_type":"video","width":stream.codec_context.width,
+                            "height":stream.codec_context.height}]} 
+FFMPEG=imageio_ffmpeg.get_ffmpeg_exe()
 m1,m2=metadata(A),metadata(B)
 for m in (m1,m2):
     stream=next(s for s in m["streams"] if s["codec_type"]=="video")
@@ -41,7 +45,7 @@ with wave.open(str(target),"wb") as w:
         buf.extend(round(val*32767).to_bytes(2,"little",signed=True))
     w.writeframes(buf)
 out=OUT/"PUPIS_CINEMATIC_2_ACTIONS_6S.mp4"
-cmd=["ffmpeg","-hide_banner","-loglevel","error","-y",
+cmd=[FFMPEG,"-hide_banner","-loglevel","error","-y",
      "-i",str(A),"-i",str(B),"-i",str(target),
      "-filter_complex","[0:v]fps=16,format=yuv420p[v0];"
       "[1:v]fps=16,format=yuv420p[v1];"
@@ -51,7 +55,7 @@ cmd=["ffmpeg","-hide_banner","-loglevel","error","-y",
      "-r","16","-pix_fmt","yuv420p",
      "-c:a","aac","-b:a","128k","-shortest",str(out)]
 subprocess.run(cmd,check=True,timeout=130)
-subprocess.run(["ffmpeg","-v","error","-i",str(out),"-f","null","-"],check=True,timeout=60)
+subprocess.run([FFMPEG,"-v","error","-i",str(out),"-f","null","-"],check=True,timeout=60)
 info=metadata(out)
 assert float(info["format"]["duration"])>=5.8
 (OUT/"TWO_BEAT_STATUS.json").write_text(json.dumps({
