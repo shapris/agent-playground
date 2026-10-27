@@ -11,7 +11,7 @@ permissions:
   contents: read
 concurrency:
   group: pupis-shorts-cloud-video-proof
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   render:
     name: Generate original animation in GitHub cloud (no user PC)
@@ -23,7 +23,7 @@ jobs:
       - name: Install free CPU renderer dependencies
         run: |
           python -m pip install --disable-pip-version-check pillow requests
-          command -v ffmpeg || sudo apt-get update && sudo apt-get install -y ffmpeg
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
       - name: Original 2D moving character and original SFX
         run: python cloud-film/render.py
       - name: Optional one public ZeroGPU Wan2.2 image-to-video request
