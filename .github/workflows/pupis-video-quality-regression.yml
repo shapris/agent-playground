@@ -12,9 +12,6 @@ on:
 permissions:
   contents: read
   actions: read
-concurrency:
-  group: pupis-real-quality-gate-cloud
-  cancel-in-progress: true
 jobs:
   quality-regression:
     name: Verify all 7 skills tests and reject the owner's bad 42s film
