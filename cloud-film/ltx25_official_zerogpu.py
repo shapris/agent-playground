@@ -36,7 +36,7 @@ try:
     # The official app.py uses go.click(run, _INPUTS, _OUTPUTS), and its API
     # values correspond to: prompt,image,height,width,duration,seed,decoder,auto,
     # randomize,enhance.
-    available=[str(k) for k in client.endpoints.keys()]
+    available=[str(ep.api_name) for ep in client.endpoints.values() if getattr(ep,"api_name",None)]
     print("LTX25_ENDPOINTS",available,flush=True)
     candidates=("/run","/generate","/predict")
     endpoint=next((name for name in candidates if name in available),None)
