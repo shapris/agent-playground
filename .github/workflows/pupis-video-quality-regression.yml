@@ -21,6 +21,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify QA skill unit tests
         run: python -m unittest discover -s tools/tests -p test_pupis_video_qa.py -v
+      - name: Ensure FFmpeg and ffprobe are available on the cloud runner
+        run: |
+          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          command -v ffprobe
       - name: Download the EXACT old rejected real MP4 (no synthetic pass)
         env:
           GH_TOKEN: ${{ github.token }}
