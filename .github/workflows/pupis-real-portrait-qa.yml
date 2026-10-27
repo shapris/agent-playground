@@ -1,0 +1,24 @@
+name: PUPIS - Fetch athlete CC BY-SA real portrait (QA only)
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths: ['.github/workflows/pupis-real-portrait-qa.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve original self-uploaded sports portrait and legally required attribution
+        run: python experiments/collect_genuine_portait_gedminas.py
+      - name: Store portrait and license attribution
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-GEDMINAS-original-licensed-photo-CC-BY-SA
+          path: licensed_media/*
+          if-no-files-found: error
+          retention-days: 7
