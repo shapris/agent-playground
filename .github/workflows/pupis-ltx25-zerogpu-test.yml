@@ -1,0 +1,38 @@
+name: PUPIS - Official LTX 2.5 free 24FPS image to video test
+on:
+  push:
+    branches: [pupis-shorts-cloud-video-20261027]
+    paths:
+      - '.github/workflows/pupis-ltx25-zerogpu-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native24fps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install portable free libraries
+        run: python -m pip install --disable-pip-version-check "gradio_client>=1.12,<3" av
+      - name: Retrieve ALREADY EXISTING original, fictional FLUX boxer keyframe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p cloud-film/output
+          gh run download 40580882436 --repo shapris/agent-playground \
+            --name PUPIS-cinematic-original-FLUX-and-WAN-video --dir cloud-film/output
+          test -s cloud-film/output/first_frame.png
+      - name: Run free official LTX-2.5 public ZeroGPU model and independently probe video
+        run: python cloud-film/ltx25_official_zerogpu.py
+      - name: Save verified media and precise failure status, never synthetic success
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS-official-LTX25-ZeroGPU-native-quality-trial
+          path: |
+            cloud-film/output/LTX25_ZERO_GPU_STATUS.json
+            cloud-film/output/PUPIS_LTX25_NATIVE_24FPS.mp4
+          if-no-files-found: warn
+          retention-days: 7
