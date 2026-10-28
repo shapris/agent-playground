@@ -1,0 +1,54 @@
+name: PUPIS Shorts 006 Alternative Freely Licensed Motion Source
+on:
+  push:
+    branches: [pupis-shorts-voice-006]
+    paths: ['.github/workflows/pupis_006_hf_stock.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install open source Hugging Face client
+        run: python -m pip install -q 'huggingface_hub[hf_xet]'
+      - name: Retrieve actual Mixkit-origin moving clips from publicly published dataset
+        shell: bash
+        run: |
+          python - <<'PY'
+          from huggingface_hub import HfApi,hf_hub_download
+          import pathlib,json,shutil
+          repo='FastVideo/Mixkit-Src'
+          api=HfApi()
+          files=api.list_repo_files(repo,repo_type='dataset')
+          terms=['arduous-mixed-martial-arts-showdown-of-two-women-40996',
+                 'martial-arts-combat-between-two-women-40999',
+                 'fierce-mixed-martial-arts-combat-between-two-women-41000',
+                 'young-wrestler-woman-warming-up-on-a-ring-40976',
+                 'two-women-looking-at-each-other-before-a-fight-40998',
+                 'arduous-mixed-martial-arts-combat-between-two-women-41103']
+          candidates=[(k,f) for k in terms for f in files if k in f and f.lower().endswith('.mp4')]
+          print('TOTAL_PUBLIC_DATASET_VIDEO_PATHS',len(files),'MATCHES',len(candidates))
+          for k,f in candidates:print('CANDIDATE',k,f)
+          out=pathlib.Path('output');out.mkdir(exist_ok=True)
+          manifest=[]
+          for i,(term,f) in enumerate(candidates[:6]):
+            downloaded=hf_hub_download(repo_id=repo,repo_type='dataset',filename=f)
+            target=out/f'stock_{i+1:02}.mp4'
+            shutil.copyfile(downloaded,target)
+            manifest.append({'file':str(target),'source_dataset':'https://huggingface.co/datasets/FastVideo/Mixkit-Src',
+                             'original_license':'https://mixkit.co/license/modal/videoFree/',
+                             'original_clip_key':term,
+                             'illustrative_not_2026_championship':True,'bytes':target.stat().st_size})
+            print('DOWNLOADED',f,target.stat().st_size)
+          (out/'rights_manifest.json').write_text(json.dumps(manifest,indent=2))
+          if len(manifest)<3:raise RuntimeError('No sufficient actual motion clips; do not invent fake frames')
+          PY
+      - name: Save recovered full-motion visual assets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS_006_MOTION_VISUALS_INTERNAL
+          path: output/
+          retention-days: 7
