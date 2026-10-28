@@ -1,0 +1,63 @@
+name: PUPIS Shorts 006 Free Lithuanian Voice QA
+on:
+  push:
+    branches: [pupis-shorts-voice-006]
+    paths: ['.github/workflows/pupis_006_voice.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthesize-lt-voice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install Python TTS HTTP client
+        run: python -m pip install requests
+      - name: Produce free commercial Lithuanian WAV (no tokens, no credit cards, private)
+        shell: bash
+        env:
+          PUPIS_SCRIPT: "Dvi Lietuvos imtynininkės pasaulio čempionate Astanoje baigė pasirodymą. Kamilė Griškienė-Gaučaitė pradėjo pergale: keturi prieš du įveikė Japonijos atstovę Yasuhą Matsuyuki. Tačiau vėliau pralaimėjo Indijos sportininkei Kajal. Per paguodos kovą lietuvę dešimt prieš nulį sustabdė Mongolijos atstovė Davaanasan Enkh Amar. Kamilė galutinėje septyniasdešimt šešių kilogramų įskaitoje užėmė devintą vietą. Penkiasdešimties kilogramų kategorijoje Gabija Dilytė pirmojoje kovoje dešimt prieš nulį nusileido olimpinei čempionei Yui Susaki. Paguodoje ją vienuolika prieš nulį nugalėjo ukrainietė Oksana Livach. Abi lietuvės pasirodymą jau baigė. O Mongolijos sportininkė Enkh Amar iškovojo bronzą. Ką manai apie mūsų sportininkių pasirodymą? Komentuok. PUPIS SHORTS — Lietuvos kovinis sportas."
+        run: |
+          python - <<'PY'
+          import os,re,json,requests,wave,hashlib,pathlib,html,urllib.parse
+          text=os.environ["PUPIS_SCRIPT"]
+          assert 0<len(text)<=1000
+          s=requests.Session();s.headers["User-Agent"]="Mozilla/5.0"
+          g=s.get("https://vach.cc/",timeout=30)
+          g.raise_for_status()
+          m=re.search(r'<meta[^>]*name=["\']csrf-token["\'][^>]*content=["\']([^"\']+)',g.text)
+          if not m:
+              m=re.search(r'<meta[^>]*content=["\']([^"\']+)["\'][^>]*name=["\']csrf-token',g.text)
+          if not m:raise RuntimeError("VACH_CSRF_NOT_FOUND")
+          payload={"text":text,"lang":"lt","voice":"M3","speed":1.05,"steps":36,
+                   "silence":0.15,"is_public":False,"title":"PUPIS SHORTS 006 INTERNAL"}
+          r=s.post("https://vach.cc/generate",json=payload,
+                   headers={"X-CSRF-TOKEN":html.unescape(m.group(1)),"Accept":"application/json"},timeout=200)
+          print("API_RESPONSE_STATUS",r.status_code)
+          r.raise_for_status()
+          j=r.json()
+          if not j.get("success"):raise RuntimeError("VACH_REJECTED:"+str(j.get("error")))
+          print("API_RESPONSE_FIELDS",sorted(j))
+          link=j.get("audio_url") or j.get("download_url") or j.get("wav_url") or j.get("file_url")
+          if not link:raise RuntimeError("VACH_AUDIO_URL_MISSING")
+          link=urllib.parse.urljoin("https://vach.cc/",link)
+          if not link.startswith("https://vach.cc/"):raise RuntimeError("VACH_AUDIO_HOST_UNEXPECTED")
+          b=s.get(link,timeout=120).content
+          if len(b)<25000 or b[:4]!=b"RIFF" or b[8:12]!=b"WAVE":raise RuntimeError("INVALID_WAV")
+          path=pathlib.Path("output");path.mkdir(exist_ok=True)
+          f=path/"PUPIS_006_LT_VACH_M3.wav";f.write_bytes(b)
+          with wave.open(str(f),"rb") as w:dur=w.getnframes()/w.getframerate()
+          if dur<25 or dur>100:raise RuntimeError("INVALID_DURATION:"+str(dur))
+          proof={"name":f.name,"seconds":round(dur,2),"sha256":hashlib.sha256(b).hexdigest(),
+                 "voice":"M3","lang":"lt","source":"https://vach.cc/",
+                 "license":"https://vach.cc/faq","status":"TTS_CREATED_NOT_HUMAN_APPROVED"}
+          (path/"QA.json").write_text(json.dumps(proof,ensure_ascii=False,indent=2),encoding="utf-8")
+          print("PRODUCTION_WAV_CREATED",proof["seconds"],proof["sha256"])
+          PY
+      - name: Store audio and QA evidence privately in workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS_006_LT_WAV_NOT_PUBLISHED
+          path: output/
+          if-no-files-found: error
+          retention-days: 7
