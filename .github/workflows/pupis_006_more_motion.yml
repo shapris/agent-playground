@@ -1,0 +1,55 @@
+name: PUPIS Shorts 006 Expand Verified Real Motion Library
+on:
+  push:
+    branches: [pupis-shorts-voice-006]
+    paths: ['.github/workflows/pupis_006_more_motion.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch-more-verified:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Install Hugging Face library
+        run: python -m pip install -q 'huggingface_hub[hf_xet]'
+      - name: Retrieve additional footage with known Mixkit Free License sources
+        shell: bash
+        run: |
+          python - <<'PY'
+          from huggingface_hub import HfApi,hf_hub_download
+          import pathlib,json,shutil
+          repo='FastVideo/Mixkit-Src'
+          files=HfApi().list_repo_files(repo,repo_type='dataset')
+          terms=[
+            ('two-women-in-a-ring-prior-to-a-mixed-martial-40975','https://mixkit.co/free-stock-video/two-women-in-a-ring-prior-to-a-mixed-martial-40975/'),
+            ('female-fighter-spinning-in-a-ring-to-warm-up-40986','https://mixkit.co/free-stock-video/female-fighter-spinning-in-a-ring-to-warm-up-40986/'),
+            ('female-fighter-preparing-for-a-match-in-a-ring-41001','https://mixkit.co/free-stock-video/female-fighter-preparing-for-a-match-in-a-ring-41001/'),
+            ('mixed-martial-arts-fighter-warming-up-40977','https://mixkit.co/free-stock-video/mixed-martial-arts-fighter-warming-up-40977/'),
+            ('fierce-martial-arts-combat-between-two-women-40993','https://mixkit.co/free-stock-video/fierce-martial-arts-combat-between-two-women-40993/'),
+            ('two-women-fighting-on-the-edge-of-a-ring-40982','https://mixkit.co/free-stock-video/two-women-fighting-on-the-edge-of-a-ring-40982/'),
+            ('two-women-in-energetic-mixed-martial-arts-match-40989','https://mixkit.co/free-stock-video/two-women-in-energetic-mixed-martial-arts-match-40989/'),
+            ('concentrated-fighter-during-a-fight-40990','https://mixkit.co/free-stock-video/concentrated-fighter-during-a-fight-40990/'),
+            ('two-women-looking-at-each-other-before-a-fight-40998','https://mixkit.co/free-stock-video/two-women-looking-at-each-other-before-a-fight-40998/')
+          ]
+          out=pathlib.Path('output');out.mkdir(exist_ok=True)
+          record=[]
+          for name,url in terms:
+            hit=next((f for f in files if name in f and f.endswith('.mp4')),None)
+            if not hit:
+              print('NOT_IN_DATASET',name);continue
+            f=hf_hub_download(repo_id=repo,repo_type='dataset',filename=hit)
+            dst=out/f'stock_{len(record)+5:02}.mp4'
+            shutil.copyfile(f,dst)
+            record.append({'file':dst.name,'original_source':url,'media_source':hit,'bytes':dst.stat().st_size,'license':'https://mixkit.co/license/modal/videoFree/', 'role':'generic MMA illustration, not genuine WW2026'})
+            print('DOWNLOADED',hit,dst.stat().st_size)
+          (out/'rights_manifest_additional.json').write_text(json.dumps(record,indent=2))
+          if len(record)<2:raise RuntimeError('Less than 2 diverse new real motion clips')
+          PY
+      - name: Retain supplementary motion assets for local assembly
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS_006_MORE_REAL_MOTION_NOT_PUBLISHED
+          path: output/
+          retention-days: 7
