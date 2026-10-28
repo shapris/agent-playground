@@ -1,0 +1,62 @@
+name: PUPIS Shorts 006 Mixkit Free Motion Footage
+on:
+  push:
+    branches: [pupis-shorts-voice-006]
+    paths: ['.github/workflows/pupis_006_mixkit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  licensed-footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Download real action videos from Mixkit Free License CDN
+        shell: bash
+        run: |
+          python - <<'PY'
+          import requests,subprocess,json,pathlib
+          targets=[
+            ('stock_01','arduous-mixed-martial-arts-showdown-of-two-women-40996','https://mixkit.co/free-stock-video/arduous-mixed-martial-arts-showdown-of-two-women-40996/'),
+            ('stock_02','martial-arts-combat-between-two-women-40999','https://mixkit.co/free-stock-video/martial-arts-combat-between-two-women-40999/'),
+            ('stock_03','fierce-mixed-martial-arts-combat-between-two-women-41000','https://mixkit.co/free-stock-video/fierce-mixed-martial-arts-combat-between-two-women-41000/'),
+            ('stock_04','young-wrestler-woman-warming-up-on-a-ring-40976','https://mixkit.co/free-stock-video/young-wrestler-woman-warming-up-on-a-ring-40976/'),
+            ('stock_05','two-women-looking-at-each-other-before-a-fight-40998','https://mixkit.co/free-stock-video/two-women-looking-at-each-other-before-a-fight-40998/'),
+            ('stock_06','arduous-mixed-martial-arts-combat-between-two-women-41103','https://mixkit.co/free-stock-video/arduous-mixed-martial-arts-combat-between-two-women-41103/')
+          ]
+          sess=requests.Session();out=pathlib.Path('output');out.mkdir(exist_ok=True)
+          report=[]
+          for name,slug,page in targets:
+            d={'name':name,'source':page,'license':'https://mixkit.co/license/modal/videoFree/','genre':'MMA illustrative, NOT authentic UWW wrestling', 'success':False}
+            path=out/(name+'.mp4')
+            for quality in ('large','small'):
+              url=f'https://assets.mixkit.co/videos/preview/mixkit-{slug}-{quality}.mp4'
+              try:
+                req=sess.get(url,stream=True,timeout=95,headers={'User-Agent':'Mozilla/5.0','Referer':page})
+                print(name,quality,req.status_code,req.headers.get('Content-Type'),req.headers.get('Content-Length'))
+                if req.status_code!=200:continue
+                with path.open('wb') as f:
+                  for b in req.iter_content(1024*512):
+                    if b:f.write(b)
+                if path.stat().st_size<500_000:continue
+                pr=subprocess.run(['ffprobe','-v','error','-show_entries','stream=codec_type,width,height','-show_entries','format=duration','-of','json',str(path)],capture_output=True,text=True)
+                if pr.returncode==0:
+                  meta=json.loads(pr.stdout)
+                  if any(s.get('codec_type')=='video' for s in meta.get('streams',[])):
+                    d.update(success=True,bytes=path.stat().st_size,probe=meta,cdn=url);break
+              except Exception as exc:print(name,quality,'ERROR',str(exc)[:130])
+            if not d['success'] and path.exists():path.unlink()
+            report.append(d)
+          (out/'rights_manifest.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          hits=sum(v['success'] for v in report)
+          print('MIXKIT_REAL_STOCK_SUCCEEDED',hits)
+          if hits<4:raise RuntimeError('Insufficient moving clips; no false fallback')
+          PY
+      - name: Retain licensed stock privately for film assembly
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS_006_MIXKIT_REAL_ACTION_BROLL
+          path: output/
+          if-no-files-found: warn
+          retention-days: 7
