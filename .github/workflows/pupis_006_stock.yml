@@ -1,0 +1,83 @@
+name: PUPIS Shorts 006 Free Licensed Wrestling Stock
+on:
+  push:
+    branches: [pupis-shorts-voice-006]
+    paths: ['.github/workflows/pupis_006_stock.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve-licensed-broll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install open source video inspection and downloader
+        run: |
+          python -m pip install -q requests yt-dlp
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - name: Download approved free-motion women's grappling footage only
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,requests,re,html,subprocess,pathlib,shutil
+          clips=[
+             ("stock_01","https://www.pexels.com/video/intense-female-mixed-martial-arts-training-session-38738418/","Gera Cejas"),
+             ("stock_02","https://www.pexels.com/video/women-practicing-brazilian-jiu-jitsu-grappling-techniques-38738425/","Gera Cejas"),
+             ("stock_03","https://www.pexels.com/video/women-doing-jiu-jitsu-8612327/","RDNE Stock project"),
+             ("stock_04","https://www.pexels.com/video/women-stretching-on-a-mat-6326792/","Pavel Danilyuk"),
+             ("stock_05","https://www.pexels.com/video/woman-training-with-her-coach-8471303/","Yaroslav Shuraev")
+          ]
+          out=pathlib.Path('output');out.mkdir(exist_ok=True)
+          report=[]
+          sess=requests.Session();sess.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/129 Safari/537.36'})
+          for name,page,creator in clips:
+            item={'name':name,'source':page,'creator':creator,'license':'https://www.pexels.com/license/','success':False}
+            try:
+              r=sess.get(page,timeout=40)
+              print(name,'PAGE',r.status_code,'HTML_BYTES',len(r.content))
+              item['page_status']=r.status_code
+              item['html_bytes']=len(r.content)
+              t=html.unescape(r.text).replace('\\/','/')
+              patterns=[r'https://videos\\.pexels\\.com/video-files/[^"\\s<>]+?\\.mp4(?:\\?[^"\\s<>]*)?',r'https://player\\.vimeo\\.com/external/[^"\\s<>]+?\\.mp4(?:\\?[^"\\s<>]*)?',r'https://videos\\.pexels\\.com[^"\\s<>]+?\\.mp4(?:\\?[^"\\s<>]*)?']
+              urls=[]
+              for p in patterns:urls+=re.findall(p,t)
+              urls=list(dict.fromkeys(x.replace('&amp;','&') for x in urls))
+              print(name,'PUBLIC_MP4_LINKS',len(urls))
+              target=out/(name+'.mp4')
+              for url in urls[:8]:
+                try:
+                  v=sess.get(url,timeout=120,stream=True,headers={'Referer':page})
+                  if not v.ok:continue
+                  with target.open('wb') as f:
+                    for chunk in v.iter_content(1024*256):
+                      if chunk:f.write(chunk)
+                  if target.stat().st_size>600_000:break
+                except Exception as e: print(name,'CDN_ERROR',str(e)[:120])
+              if not target.exists() or target.stat().st_size<600_000:
+                try:
+                  proc=subprocess.run(['yt-dlp','--no-playlist','-f','best[ext=mp4]/best','-o',str(target),page],capture_output=True,text=True,timeout=100)
+                  print(name,'YTDLP_RETURN',proc.returncode,'LAST_LINES',proc.stderr[-550:])
+                except Exception as e: print(name,'YTDLP_ERROR',str(e)[:120])
+              if target.exists() and target.stat().st_size>600_000:
+                check=subprocess.run(['ffprobe','-v','error','-show_entries','stream=codec_type,width,height','-show_entries','format=duration','-of','json',str(target)],capture_output=True,text=True)
+                if check.returncode==0:
+                  d=json.loads(check.stdout)
+                  if any(s.get('codec_type')=='video' for s in d.get('streams',[])):
+                    item.update({'success':True,'size':target.stat().st_size,'probe':d})
+                  else:target.unlink()
+              print(name,'SUCCESS',item['success'])
+            except Exception as exc:item['error']=str(exc)[:400]
+            report.append(item)
+          (out/'rights_manifest.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          n=sum(z['success'] for z in report)
+          print('REAL_MOVING_CLIPS_OK',n,'of',len(report))
+          if n<3:raise RuntimeError('Insufficient real licensed B-roll; no fake-footage fallback')
+          PY
+      - name: Retain stock rights manifest and video assets in Action archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PUPIS_006_REAL_STOCK_REVIEW_NOT_PUBLISHED
+          path: output/
+          if-no-files-found: warn
+          retention-days: 7
